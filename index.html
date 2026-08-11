@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Mamo AR Experience</title>
+  <meta name="description" content="Experiência de Realidade Aumentada Mamo com Three.js e MindAR">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;900&display=swap" rel="stylesheet">
+
+  <!-- CSS Customizado (UI Touch-First) -->
+  <link rel="stylesheet" href="css/app.css">
+
+  <!-- Bibliotecas Core (Carregadas via CDN) -->
+  <!-- 1. Three.js R128 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- 1.5. GLTFLoader para Three.js -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  
+  <!-- 2. MindAR Image para Three.js -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"></script>
+  <!-- PWA Manifest & Theme Color -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Mamo AR">
+  <link rel="apple-touch-icon" href="assets/images/qrcode.png">
+</head>
+<body>
+
+  <!-- Container onde a câmera e o Canvas 3D do Three.js serão injetados -->
+  <div id="ar-container"></div>
+
+  <!-- ─────────── Splash / Loading Screen ─────────── -->
+  <div id="splash">
+    <div class="splash-logo">mamo</div>
+    <div class="splash-sub">AR Experience</div>
+    
+    <!-- Botão de Iniciar (Requerido pelo iOS/Safari para câmera) -->
+    <button id="start-btn" class="start-btn">Iniciar Experiência AR</button>
+    
+    <!-- Loader (Inicialmente oculto) -->
+    <div id="loading-indicator" class="hidden">
+      <div class="loader"></div>
+      <div class="splash-hint">Iniciando câmera e<br>carregando rastreador...</div>
+    </div>
+  </div>
+
+  <!-- ─────────── Scanning HUD Overlay ─────────── -->
+  <div id="scanning-hud" class="hidden">
+    <div class="scan-frame">
+      <div class="scan-corner-br"></div>
+      <div class="scan-corner-bl"></div>
+      <div class="scan-line"></div>
+    </div>
+    <div class="scan-text">Aponte para o QR Code</div>
+  </div>
+
+  <!-- ─────────── Botão de Fechar / Reiniciar ─────────── -->
+  <button class="close-btn" id="closeBtn" title="Fechar">✕</button>
+
+  <!-- ─────────── Mensagem de Erro ─────────── -->
+  <div id="error-msg"></div>
+
+  <!-- ─────────── Script Principal (ES Module) ─────────── -->
+  <script type="module" src="js/app.js"></script>
+
+  <script>
+    /* Impedir pinch-zoom no iOS para manter a experiência WebApp touch estável */
+    document.addEventListener('gesturestart', e => e.preventDefault());
+
+    /* Registro do Service Worker para suporte PWA/Offline */
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('[PWA] Service Worker registrado no escopo:', reg.scope))
+          .catch(err => console.error('[PWA] Falha ao registrar o Service Worker:', err));
+      });
+    }
+  </script>
+</body>
+</html>

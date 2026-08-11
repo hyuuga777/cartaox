@@ -1,0 +1,19 @@
+{
+  "name": "Mamo AR Experience",
+  "short_name": "Mamo AR",
+  "description": "Experiência de Realidade Aumentada Mamo com Three.js e MindAR",
+  "start_url": "index.html",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#050508",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "assets/images/qrcode.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

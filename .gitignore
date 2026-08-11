@@ -1,0 +1,4 @@
+.temp_skills_repo/
+.agents/
+node_modules/
+.DS_Store
