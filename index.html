@@ -14,23 +14,24 @@
   <!-- CSS Customizado (UI Touch-First) -->
   <link rel="stylesheet" href="css/app.css">
 
-  <!-- Bibliotecas Core (Carregadas via CDN) -->
-  <!-- 1. Three.js R137 -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.0/build/three.min.js"></script>
+  <!--
+    MindAR 1.2.5 e Three.js usam ES Modules.
+    O import map é obrigatório porque os módulos importam "three" por nome.
+  -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+      "mindar-image-three": "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+    }
+  }
+  </script>
 
-  <!-- 1.5. GLTFLoader para Three.js -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.0/examples/js/loaders/GLTFLoader.js"></script>
-  
-  <!-- 1.6. OrbitControls e TransformControls para o Modo PC -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.0/examples/js/controls/TransformControls.js"></script>
-
-  
-  <!-- 2. MindAR Image para Three.js -->
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"></script>
   <!-- PWA Manifest & Theme Color -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#000000">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Mamo AR">
@@ -41,28 +42,26 @@
   <!-- Container onde a câmera e o Canvas 3D do Three.js serão injetados -->
   <div id="ar-container"></div>
 
-  <!-- ─────────── Splash / Loading Screen ─────────── -->
+  <!-- Splash / Loading Screen -->
   <div id="splash">
     <img src="assets/images/logo_mamo.png" alt="Mamo Logo" class="splash-logo-img">
     <div class="splash-sub">AR Experience</div>
-    
-    <!-- Botão de Iniciar (Requerido pelo iOS/Safari para câmera) -->
+
+    <!-- O clique chama mindarThree.start() diretamente para o iOS/Safari -->
     <button id="start-btn" class="start-btn">Iniciar Experiência AR</button>
     <button id="start-pc-btn" class="start-pc-btn">Modo PC (Editor)</button>
-    
-    <!-- Agência Cyborg Footer -->
+
     <div class="agency-footer">
-      Feito por <a href="http://agenciacyborg.com/" target="_blank">Agência Cyborg</a>
+      Feito por <a href="http://agenciacyborg.com/" target="_blank" rel="noopener">Agência Cyborg</a>
     </div>
-    
-    <!-- Loader (Inicialmente oculto) -->
+
     <div id="loading-indicator" class="hidden">
       <div class="loader"></div>
       <div class="splash-hint">Iniciando câmera e<br>carregando rastreador...</div>
     </div>
   </div>
 
-  <!-- ─────────── Scanning HUD Overlay ─────────── -->
+  <!-- Scanning HUD Overlay -->
   <div id="scanning-hud" class="hidden">
     <div class="scan-frame">
       <div class="scan-corner-br"></div>
@@ -72,20 +71,18 @@
     <div class="scan-text">Aponte para o QR Code</div>
   </div>
 
-  <!-- ─────────── Botão de Fechar / Reiniciar ─────────── -->
+  <!-- Botão de Fechar / Reiniciar -->
   <button class="close-btn" id="closeBtn" title="Fechar">✕</button>
 
-  <!-- ─────────── Mensagem de Erro ─────────── -->
+  <!-- Mensagem de Erro -->
   <div id="error-msg"></div>
 
-  <!-- ─────────── Script Principal (ES Module) ─────────── -->
+  <!-- Aplicação principal como módulo ESM -->
   <script type="module" src="js/app.js"></script>
 
   <script>
-    /* Impedir pinch-zoom no iOS para manter a experiência WebApp touch estável */
-    document.addEventListener('gesturestart', e => e.preventDefault());
+    document.addEventListener('gesturestart', event => event.preventDefault());
 
-    /* Registro do Service Worker para suporte PWA/Offline */
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js')

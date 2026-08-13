@@ -4,6 +4,8 @@
  * Combina flores.glb, givemy-letras.glb, grama.glb e mamo-letras.glb em um único grupo.
  */
 
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import state from './state.js';
 import targetsConfig from './targets.js';
 
@@ -26,7 +28,7 @@ const animationMixers = [];
 export function loadComposedScene() {
   return new Promise((resolve, reject) => {
     const loadingManager = new THREE.LoadingManager();
-    const loader = new THREE.GLTFLoader(loadingManager);
+    const loader = new GLTFLoader(loadingManager);
     const composedGroup = new THREE.Group();
     composedGroup.name = 'composedScene';
 
@@ -82,6 +84,14 @@ export function loadComposedScene() {
               const mats = Array.isArray(node.material) ? node.material : [node.material];
               
               mats.forEach(mat => {
+                if (mat.map) {
+                  mat.map.colorSpace = THREE.SRGBColorSpace;
+                  mat.map.needsUpdate = true;
+                }
+                if (mat.emissiveMap) {
+                  mat.emissiveMap.colorSpace = THREE.SRGBColorSpace;
+                  mat.emissiveMap.needsUpdate = true;
+                }
                 if (mat.transparent) {
                   mat.depthWrite = true;
                 }

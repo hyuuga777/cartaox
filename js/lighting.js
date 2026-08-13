@@ -4,6 +4,8 @@
  * Suporta perfil "realista" (luz natural e sombras suaves) e "estilizado" (neon/cyberpunk).
  */
 
+import * as THREE from 'three';
+
 let ambientLight = null;
 let mainLight = null;
 let secondaryLight = null;

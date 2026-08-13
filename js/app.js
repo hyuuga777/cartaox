@@ -4,6 +4,10 @@
  * Inicializa a cena composta (composedScene) e gerencia o loop de renderização.
  */
 
+import * as THREE from 'three';
+import { MindARThree } from 'mindar-image-three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import state from './state.js';
 import targetsConfig from './targets.js';
 import models from './models.js';
@@ -22,8 +26,9 @@ async function initAR() {
   const hud = document.querySelector('#scanning-hud');
 
   try {
-    // 1. Inicializa o MindARThree puro (sem A-Frame)
-    mindarThree = new MINDAR.IMAGE.MindARThree({
+    // 1. Inicializa o MindARThree ESM. Não usar MINDAR.IMAGE aqui:
+    // essa é a API global da build antiga e não existe no módulo ESM.
+    mindarThree = new MindARThree({
       container: container,
       imageTargetSrc: targetsConfig.mindSrc,
       uiLoading: 'no',
@@ -116,7 +121,8 @@ async function initAR() {
     });
 
   } catch (error) {
-    console.error('Falha ao inicializar o AR:', error);
+    console.error('[AR ERROR] Falha ao inicializar o AR:', error);
+    console.error('[AR ERROR] name:', error?.name, 'message:', error?.message, 'stack:', error?.stack);
     
     // Restaura a UI do botão em caso de falha (ex: permissão negada)
     const startBtn = document.querySelector('#start-btn');
@@ -124,11 +130,21 @@ async function initAR() {
     if (startBtn) startBtn.classList.remove('hidden');
     if (loadingIndicator) loadingIndicator.classList.add('hidden');
 
-    if (error.name === 'NotAllowedError') {
-      showErrorMessage('Permissão negada. Libere o acesso à câmera nas configurações do navegador.');
-    } else {
-      showErrorMessage('Não foi possível iniciar a câmera. Verifique as permissões de vídeo.');
+    let message = `Erro: ${error?.message || error?.name || 'falha desconhecida'}`;
+    if (error?.name === 'NotAllowedError') {
+      message = 'Permissão de câmera negada. Autorize a câmera nas configurações do navegador.';
+    } else if (error?.name === 'NotFoundError' || error?.name === 'DevicesNotFoundError') {
+      message = 'Nenhuma câmera compatível foi encontrada neste dispositivo.';
+    } else if (error?.name === 'NotReadableError' || error?.name === 'TrackStartError') {
+      message = 'A câmera está em uso por outro aplicativo. Feche-o e tente novamente.';
+    } else if (error?.name === 'SecurityError') {
+      message = 'A câmera exige HTTPS. Abra o site usando um endereço https://.';
+    } else if (error?.message?.includes('target') || error?.message?.includes('.mind')) {
+      message = `Não foi possível carregar o arquivo de rastreamento: ${targetsConfig.mindSrc}`;
+    } else if (error?.message?.includes('MindAR') || error?.message?.includes('module')) {
+      message = 'O motor AR não carregou. Atualize a página e verifique a conexão com a CDN.';
     }
+    showErrorMessage(message);
   }
 }
 
@@ -190,7 +206,7 @@ async function initDesktopMode() {
     camera.position.set(0, 1.5, 3); // Câmera olhando de cima e de frente
 
     // Adiciona controles de mouse
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.target.set(0, 0, 0);
@@ -233,7 +249,7 @@ async function initDesktopMode() {
     });
 
     // Adiciona TransformControls para mover objetos
-    const transformControl = new THREE.TransformControls(camera, renderer.domElement);
+    const transformControl = new TransformControls(camera, renderer.domElement);
     transformControl.addEventListener('dragging-changed', (event) => {
       controls.enabled = !event.value;
       if (window.EDITOR_SETTINGS) {
@@ -435,7 +451,8 @@ window.addEventListener('DOMContentLoaded', () => {
       if (loadingIndicator) loadingIndicator.classList.remove('hidden');
       
       // 3. User Gesture: Aciona diretamente a engine do MindAR.
-      initAR();
+      // A chamada ocorre dentro do clique; não usar setTimeout aqui.
+      await initAR();
     });
   }
 

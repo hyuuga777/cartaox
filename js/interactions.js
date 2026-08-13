@@ -4,6 +4,7 @@
  * Utiliza Raycasting para detectar cliques/toques nos elementos da composedScene.
  */
 
+import * as THREE from 'three';
 import state from './state.js';
 
 const raycaster = new THREE.Raycaster();
