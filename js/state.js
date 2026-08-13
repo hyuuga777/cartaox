@@ -8,6 +8,7 @@ const state = {
   // Estado geral do AR
   ar: {
     isTracking: false,
+    trackingStartTime: null,
     activeTargetIndex: -1,
     lightingProfile: 'realista', // 'realista' ou 'estilizado'
     postprocessingEnabled: false,
@@ -21,9 +22,9 @@ const state = {
 
   // Estado individual para cada modelo da composedScene
   models: {
-    grama: {
-      id: 'grama',
-      path: 'assets/3d/grama.glb',
+    novaCaixa: {
+      id: 'novaCaixa',
+      path: 'assets/3d/novaCaixa.glb',
       visible: true,
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
@@ -41,9 +42,10 @@ const state = {
       opacity: 1.0,
       playing: false
     },
-    'givemy-letras': {
-      id: 'givemy-letras',
-      path: 'assets/3d/givemy-letras.glb',
+
+    'mamo-letras': {
+      id: 'mamo-letras',
+      path: 'assets/3d/mamo-letras.glb',
       visible: true,
       position: { x: 0, y: 0.1, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
@@ -51,11 +53,32 @@ const state = {
       opacity: 1.0,
       playing: true
     },
-    'mamo-letras': {
-      id: 'mamo-letras',
-      path: 'assets/3d/mamo-letras.glb',
+
+    gramanova: {
+      id: 'gramanova',
+      path: 'assets/3d/gramanova.glb',
       visible: true,
-      position: { x: 0, y: 0.1, z: 0 },
+      position: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+      scale: { x: 1, y: 1, z: 1 },
+      opacity: 1.0,
+      playing: true
+    },
+    novacolecaofrase: {
+      id: 'novacolecaofrase',
+      path: 'assets/3d/novacolecaofrase.glb',
+      visible: true,
+      position: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+      scale: { x: 1, y: 1, z: 1 },
+      opacity: 1.0,
+      playing: true
+    },
+    givermy: {
+      id: 'givermy',
+      path: 'assets/3d/givermy.glb',
+      visible: true,
+      position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
       scale: { x: 1, y: 1, z: 1 },
       opacity: 1.0,

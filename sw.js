@@ -3,7 +3,7 @@
  * Service Worker para permitir funcionamento offline e cache local dos assets tridimensionais (GLBs).
  */
 
-const CACHE_NAME = 'mamo-ar-cache-v1';
+const CACHE_NAME = 'mamo-ar-cache-v2';
 
 // Recursos estáticos que devem ser pré-cacheados imediatamente no processo de instalação
 const ASSETS_TO_CACHE = [

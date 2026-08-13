@@ -15,11 +15,16 @@
   <link rel="stylesheet" href="css/app.css">
 
   <!-- Bibliotecas Core (Carregadas via CDN) -->
-  <!-- 1. Three.js R128 -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- 1. Three.js R137 -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.137.0/build/three.min.js"></script>
 
   <!-- 1.5. GLTFLoader para Three.js -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.137.0/examples/js/loaders/GLTFLoader.js"></script>
+  
+  <!-- 1.6. OrbitControls e TransformControls para o Modo PC -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.137.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.137.0/examples/js/controls/TransformControls.js"></script>
+
   
   <!-- 2. MindAR Image para Three.js -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"></script>
@@ -43,6 +48,7 @@
     
     <!-- Botão de Iniciar (Requerido pelo iOS/Safari para câmera) -->
     <button id="start-btn" class="start-btn">Iniciar Experiência AR</button>
+    <button id="start-pc-btn" class="start-btn" style="margin-top: 15px; background: #2a2a40; color: #fff;">Modo PC (Editor)</button>
     
     <!-- Loader (Inicialmente oculto) -->
     <div id="loading-indicator" class="hidden">

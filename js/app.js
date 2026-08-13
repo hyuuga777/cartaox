@@ -9,6 +9,7 @@ import targetsConfig from './targets.js';
 import models from './models.js';
 import lighting from './lighting.js';
 import interactions from './interactions.js';
+import editor from './editor.js';
 
 let mindarThree = null;
 let composedScene = null;
@@ -28,7 +29,15 @@ async function initAR() {
       uiLoading: 'no',
       uiScanning: 'no',
       uiError: 'no',
-      facingMode: 'environment' // Força uso da câmera traseira no mobile
+      facingMode: 'environment', // Força uso da câmera traseira no mobile
+      // ----------------------------------------------------
+      // CONFIGURAÇÕES DE TRACKING (Filtro OneEuro)
+      // Ajuste para reduzir tremedeira (jitter)
+      // ----------------------------------------------------
+      filterMinCF: 0.0001, // Padrão: 0.001. Diminuir ajuda a REDUZIR TREMEDEIRA (mais estável, mas pode ficar ligeiramente mais lento para acompanhar movimento rápido).
+      filterBeta: 0.001,   // Padrão: 1000. Diminuir suaviza os movimentos bruscos.
+      missTolerance: 10,   // Padrão: 5. Aumenta os frames de tolerância antes de "perder" a imagem se a iluminação falhar rápido.
+      warmupTolerance: 5   // Padrão: 5. Quantidade de frames para considerar o tracking sólido antes de mostrar a cena.
     });
 
     const { renderer, scene, camera } = mindarThree;
@@ -68,7 +77,11 @@ async function initAR() {
     // 7. Escuta os eventos do Target
     anchor.onTargetFound = () => {
       console.log('Target QR Code detectado!');
-      state.updateAR({ isTracking: true, activeTargetIndex: 0 });
+      state.updateAR({ 
+        isTracking: true, 
+        activeTargetIndex: 0,
+        trackingStartTime: performance.now() / 1000
+      });
       state.updateAR({ composedScene: { visible: true } });
     };
 
@@ -82,6 +95,16 @@ async function initAR() {
 
       // Atualiza animações 3D (se houverem)
       models.updateAnimations(deltaTime);
+
+      if (state.ar.isTracking && state.ar.trackingStartTime !== null) {
+        if (window.EDITOR_SETTINGS && !window.EDITOR_SETTINGS.play) {
+          models.updateTweens(window.EDITOR_SETTINGS.time);
+        } else {
+          const elapsedTime = (performance.now() / 1000) - state.ar.trackingStartTime;
+          if (window.EDITOR_SETTINGS) window.EDITOR_SETTINGS.time = elapsedTime;
+          models.updateTweens(elapsedTime);
+        }
+      }
 
       // Sincroniza posições/rotação/escala do estado declarativo para o Three.js
       models.updateSceneFromState(composedScene);
@@ -140,9 +163,260 @@ function showErrorMessage(msg) {
   }
 }
 
+// Função para iniciar Modo Desktop (sem câmera/AR)
+async function initDesktopMode() {
+  const container = document.querySelector('#ar-container');
+  const splash = document.querySelector('#splash');
+
+  try {
+    // Esconde o splash
+    if (splash) splash.classList.add('hidden');
+
+    // Configuração básica do Three.js
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.0;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    container.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1a1a2e); // Fundo escuro para destacar o modelo
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 1.5, 3); // Câmera olhando de cima e de frente
+
+    // Adiciona controles de mouse
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.target.set(0, 0, 0);
+
+    // Inicializa Iluminação
+    lighting.initLighting(scene);
+
+    // Carrega modelos
+    console.log('Iniciando o carregamento dos modelos 3D no Modo PC...');
+    composedScene = await models.loadComposedScene();
+    scene.add(composedScene);
+
+    // Força o estado como se tivesse encontrado o target
+    state.updateAR({ 
+      isTracking: true, 
+      activeTargetIndex: 0,
+      trackingStartTime: performance.now() / 1000
+    });
+    state.updateAR({ composedScene: { visible: true } });
+
+    // Inicia o Editor
+    editor.initEditor();
+
+    // Evento global para recarregar cena (útil para Duplicar objetos e ver ao vivo)
+    window.addEventListener('reload-scene', async () => {
+      console.log('Recarregando cena (Duplicação/Atualização)...');
+      if (composedScene) {
+        if (typeof transformControl !== 'undefined') transformControl.detach();
+        scene.remove(composedScene);
+        models.disposeScene(composedScene);
+      }
+      
+      composedScene = await models.loadComposedScene();
+      scene.add(composedScene);
+      
+      if (window.EDITOR_GUI) {
+        window.EDITOR_GUI.destroy();
+      }
+      editor.initEditor();
+    });
+
+    // Adiciona TransformControls para mover objetos
+    const transformControl = new THREE.TransformControls(camera, renderer.domElement);
+    transformControl.addEventListener('dragging-changed', (event) => {
+      controls.enabled = !event.value;
+      if (window.EDITOR_SETTINGS) {
+        window.EDITOR_SETTINGS.isDragging = event.value;
+      }
+    });
+    scene.add(transformControl);
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    let selectionHelper = null;
+
+    window.addEventListener('dblclick', (event) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(composedScene.children, true);
+      
+      if (intersects.length > 0) {
+        let pickedObject = intersects[0].object;
+        while (pickedObject.parent && pickedObject.parent !== composedScene) {
+          pickedObject = pickedObject.parent;
+        }
+        console.log("Selecionado para arrastar:", pickedObject.name);
+        transformControl.attach(pickedObject);
+
+        if (selectionHelper) {
+          scene.remove(selectionHelper);
+          selectionHelper.dispose();
+        }
+        // Cria uma caixa (BoxHelper) neon cyan em volta do objeto selecionado
+        selectionHelper = new THREE.BoxHelper(pickedObject, 0x00ffff);
+        scene.add(selectionHelper);
+
+        if (window.highlightEditorFolder) {
+          window.highlightEditorFolder(pickedObject.name, true);
+        }
+      } else {
+        transformControl.detach();
+
+        if (selectionHelper) {
+          scene.remove(selectionHelper);
+          selectionHelper.dispose();
+          selectionHelper = null;
+        }
+        if (window.highlightEditorFolder) {
+          window.highlightEditorFolder(null);
+        }
+      }
+    });
+
+    window.selectObjectFromMenu = (modelId) => {
+      const obj = composedScene.getObjectByName(modelId);
+      if (obj) {
+        transformControl.attach(obj);
+        if (selectionHelper) {
+          scene.remove(selectionHelper);
+          selectionHelper.dispose();
+        }
+        selectionHelper = new THREE.BoxHelper(obj, 0x00ffff);
+        scene.add(selectionHelper);
+        
+        if (window.highlightEditorFolder) {
+          window.highlightEditorFolder(modelId);
+        }
+      }
+    };
+
+    transformControl.addEventListener('change', () => {
+      if (transformControl.object && window.EDITOR_SETTINGS && window.EDITOR_SETTINGS.isDragging) {
+        const modelId = transformControl.object.name;
+        const obj = transformControl.object;
+        const mode = transformControl.getMode();
+        const anim = targetsConfig.targets[0].composition[modelId].animation;
+
+        let updatePayload = {};
+        
+        if (mode === 'translate') {
+          updatePayload.position = { x: obj.position.x, y: obj.position.y, z: obj.position.z };
+          if (anim) {
+            anim.endTransform.position.x = obj.position.x;
+            anim.endTransform.position.y = obj.position.y;
+            anim.endTransform.position.z = obj.position.z;
+          }
+        } 
+        else if (mode === 'rotate') {
+          updatePayload.rotation = { x: obj.rotation.x, y: obj.rotation.y, z: obj.rotation.z };
+        } 
+        else if (mode === 'scale') {
+          updatePayload.scale = { x: obj.scale.x, y: obj.scale.y, z: obj.scale.z };
+          if (anim) {
+            anim.endTransform.scale.x = obj.scale.x;
+            anim.endTransform.scale.y = obj.scale.y;
+            anim.endTransform.scale.z = obj.scale.z;
+          }
+        }
+        
+        // Impede que o updateSceneFromState desfaça o arraste
+        state.updateModel(modelId, updatePayload);
+      }
+    });
+
+    // Escala pelo Scroll do Mouse
+    window.addEventListener('wheel', (event) => {
+      if (transformControl.object) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        
+        const delta = event.deltaY < 0 ? 0.05 : -0.05;
+        const obj = transformControl.object;
+        
+        obj.scale.x = Math.max(0.001, obj.scale.x + delta);
+        obj.scale.y = Math.max(0.001, obj.scale.y + delta);
+        obj.scale.z = Math.max(0.001, obj.scale.z + delta);
+        
+        const modelId = obj.name;
+        const anim = targetsConfig.targets[0].composition[modelId].animation;
+        if (anim) {
+          anim.endTransform.scale.x = obj.scale.x;
+          anim.endTransform.scale.y = obj.scale.y;
+          anim.endTransform.scale.z = obj.scale.z;
+        }
+        
+        state.updateModel(modelId, {
+          scale: { x: obj.scale.x, y: obj.scale.y, z: obj.scale.z }
+        });
+      }
+    }, { capture: true, passive: false });
+
+    // Resize handler
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Loop de renderização
+    renderer.setAnimationLoop(() => {
+      const deltaTime = clock.getDelta();
+
+      controls.update(); // Necessário para damping
+      models.updateAnimations(deltaTime);
+
+      if (window.EDITOR_SETTINGS && window.EDITOR_SETTINGS.gizmoMode) {
+        if (transformControl.getMode() !== window.EDITOR_SETTINGS.gizmoMode) {
+          transformControl.setMode(window.EDITOR_SETTINGS.gizmoMode);
+        }
+      }
+
+      if (state.ar.isTracking && state.ar.trackingStartTime !== null) {
+        if (window.EDITOR_SETTINGS && !window.EDITOR_SETTINGS.play) {
+          models.updateTweens(window.EDITOR_SETTINGS.time);
+        } else {
+          const elapsedTime = (performance.now() / 1000) - state.ar.trackingStartTime;
+          if (window.EDITOR_SETTINGS) window.EDITOR_SETTINGS.time = elapsedTime;
+          models.updateTweens(elapsedTime);
+        }
+      }
+
+      models.updateSceneFromState(composedScene);
+
+      if (typeof selectionHelper !== 'undefined' && selectionHelper) {
+        selectionHelper.update();
+      }
+      
+      // No modo desktop, a luz olha pro centro (composedScene)
+      lighting.updateLighting(composedScene);
+      
+      renderer.render(scene, camera);
+    });
+
+  } catch (error) {
+    console.error('Falha ao inicializar o Modo Desktop:', error);
+    showErrorMessage('Erro ao carregar o Modo PC.');
+  }
+}
+
 // Inicia a aplicação após clique do usuário (necessário para permissões de câmera/vídeo em iOS e browsers modernos)
 window.addEventListener('DOMContentLoaded', () => {
   const startBtn = document.querySelector('#start-btn');
+  const startPcBtn = document.querySelector('#start-pc-btn');
   const loadingIndicator = document.querySelector('#loading-indicator');
 
   if (startBtn) {
@@ -157,15 +431,21 @@ window.addEventListener('DOMContentLoaded', () => {
 
       // 2. Esconde o botão e mostra o loader temporariamente
       startBtn.classList.add('hidden');
+      if (startPcBtn) startPcBtn.classList.add('hidden');
       if (loadingIndicator) loadingIndicator.classList.remove('hidden');
       
       // 3. User Gesture: Aciona diretamente a engine do MindAR.
-      // Retirado o `getUserMedia` manual prévio, pois no iOS o track.stop() gera NotReadableError
-      // ao conflitar com a requisição do próprio MindAR na sequência.
       initAR();
     });
-  } else {
-    // Fallback caso o botão não exista
-    initAR();
+  }
+
+  if (startPcBtn) {
+    startPcBtn.addEventListener('click', () => {
+      if (startBtn) startBtn.classList.add('hidden');
+      startPcBtn.classList.add('hidden');
+      if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+      
+      initDesktopMode();
+    });
   }
 });

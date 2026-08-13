@@ -66,24 +66,49 @@ export function loadComposedScene() {
           const modelScene = gltf.scene;
           modelScene.name = modelId;
 
-          // Habilita sombras de forma otimizada para mobile
+          // Habilita sombras de forma otimizada para mobile e aplica material
           modelScene.traverse((node) => {
             if (node.isMesh) {
               node.castShadow = true;
               node.receiveShadow = true;
-              
-              // Otimizações de material para mobile
-              if (node.material) {
-                // Ativa transparência se configurada no material
-                if (node.material.transparent) {
-                  node.material.depthWrite = true; // evita bugs de ordenação de profundidade comuns
-                }
+              if (!node.material) {
+                node.material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+              } else if (Array.isArray(node.material)) {
+                node.material = node.material.map(m => m.clone());
+              } else {
+                node.material = node.material.clone();
               }
+
+              const mats = Array.isArray(node.material) ? node.material : [node.material];
+              
+              mats.forEach(mat => {
+                if (mat.transparent) {
+                  mat.depthWrite = true;
+                }
+                
+                if (config.material) {
+                  if (config.material.isOccluder) {
+                    mat.colorWrite = false;
+                    mat.depthWrite = true;
+                    node.renderOrder = -1; // Ensure occluders render early
+                  }
+                  if (config.material.color && mat.color && !config.material.isOccluder) {
+                    mat.color.set(config.material.color);
+                  }
+                  if (config.material.metalness !== undefined && mat.metalness !== undefined) {
+                    mat.metalness = config.material.metalness;
+                  }
+                  if (config.material.roughness !== undefined && mat.roughness !== undefined) {
+                    mat.roughness = config.material.roughness;
+                  }
+                }
+              });
             }
           });
 
           // Aplica transformações iniciais de targets.js
-          const t = config.initialTransform;
+          let t = config.animation ? config.animation.startTransform : config.initialTransform;
+          if (!t) t = { position: {x:0,y:0,z:0}, rotation: {x:0,y:0,z:0}, scale: {x:1,y:1,z:1} };
           modelScene.position.set(t.position.x, t.position.y, t.position.z);
           modelScene.rotation.set(t.rotation.x, t.rotation.y, t.rotation.z);
           modelScene.scale.set(t.scale.x, t.scale.y, t.scale.z);
@@ -120,6 +145,7 @@ export function loadComposedScene() {
         }
       );
     });
+    activeComposedGroup = composedGroup;
   });
 }
 
@@ -133,6 +159,63 @@ export function updateAnimations(deltaTime) {
     if (modelState && modelState.playing) {
       item.mixer.update(deltaTime);
     }
+  });
+}
+
+/**
+ * Interpola (Tween) posições e escalas baseado no tempo de tracking.
+ * @param {number} elapsedTime Tempo em segundos desde que o tracking iniciou
+ */
+export function updateTweens(elapsedTime) {
+  const targetDef = targetsConfig.targets.find(t => t.index === 0);
+  if (!targetDef || !targetDef.composition) return;
+
+  const modelConfigs = targetDef.composition;
+
+  Object.keys(modelConfigs).forEach((modelId) => {
+    const config = modelConfigs[modelId];
+    if (!config.animation) return;
+
+    const anim = config.animation;
+    const modelState = state.models[modelId];
+    if (!modelState) return;
+
+    // Esconde o objeto apenas ANTES do início da animação
+    if (elapsedTime < anim.time.start) {
+      if (modelState.visible) {
+        state.updateModel(modelId, { visible: false });
+      }
+      return; // Se não está visível, não precisa calcular interpolação
+    } else {
+      if (!modelState.visible) {
+        state.updateModel(modelId, { visible: true });
+      }
+    }
+
+    // Calcular o progresso [0 a 1] da animação
+    const duration = anim.time.end - anim.time.start;
+    const progress = Math.min(Math.max((elapsedTime - anim.time.start) / duration, 0), 1);
+
+    // Função de interpolação linear (lerp)
+    const lerp = (start, end, amt) => (1 - amt) * start + amt * end;
+
+    const currentPos = {
+      x: lerp(anim.startTransform.position.x, anim.endTransform.position.x, progress),
+      y: lerp(anim.startTransform.position.y, anim.endTransform.position.y, progress),
+      z: lerp(anim.startTransform.position.z, anim.endTransform.position.z, progress),
+    };
+
+    const currentScale = {
+      x: lerp(anim.startTransform.scale.x, anim.endTransform.scale.x, progress),
+      y: lerp(anim.startTransform.scale.y, anim.endTransform.scale.y, progress),
+      z: lerp(anim.startTransform.scale.z, anim.endTransform.scale.z, progress),
+    };
+
+    // Atualiza estado (o updateSceneFromState fará a alteração no Three.js depois)
+    state.updateModel(modelId, {
+      position: currentPos,
+      scale: currentScale
+    });
   });
 }
 
@@ -166,6 +249,15 @@ export function updateSceneFromState(composedGroup) {
   });
 }
 
+let activeComposedGroup = null;
+
+/**
+ * Retorna a cena composta carregada para uso pelo editor
+ */
+export function getComposedGroup() {
+  return activeComposedGroup;
+}
+
 /**
  * Limpa todos os recursos de memória da cena composta ao descarregar.
  * @param {THREE.Group} composedGroup
@@ -192,5 +284,7 @@ export function disposeScene(composedGroup) {
   
   // Limpa cache
   Object.keys(loadedModels).forEach(key => loadedModels[key] = null);
+  activeComposedGroup = null;
 }
-export default { loadComposedScene, updateAnimations, updateSceneFromState, disposeScene };
+
+export default { loadComposedScene, updateAnimations, updateTweens, updateSceneFromState, disposeScene, getComposedGroup };

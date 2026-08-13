@@ -100,4 +100,11 @@ export function updateLighting(targetGroup) {
     mainLight.target = targetGroup;
   }
 }
-export default { initLighting, applyProfile, updateLighting };
+/**
+ * Retorna as luzes ativas para controle externo (ex: Editor).
+ */
+export function getLights() {
+  return { ambientLight, mainLight, secondaryLight };
+}
+
+export default { initLighting, applyProfile, updateLighting, getLights };
