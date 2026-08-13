@@ -31,7 +31,7 @@ html, body {
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: radial-gradient(circle at center, #101018 0%, #050508 100%);
+  background: #000000;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -45,15 +45,12 @@ html, body {
   pointer-events: none;
 }
 
-.splash-logo {
-  font-size: 3.5rem;
-  font-weight: 900;
-  letter-spacing: -2px;
-  background: linear-gradient(135deg, #ffffff 0%, #a8b2c1 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
-  animation: logo-drift 4s ease-in-out infinite alternate;
+.splash-logo-img {
+  width: 250px;
+  max-width: 80%;
+  height: auto;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.1));
 }
 
 .splash-sub {
@@ -94,27 +91,63 @@ html, body {
 }
 
 .start-btn {
-  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
-  color: white;
-  border: none;
+  background: #ffffff;
+  color: #000000;
+  border: 1px solid #ffffff;
   padding: 14px 28px;
   font-size: 1rem;
   font-weight: 600;
   border-radius: 30px;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
   font-family: inherit;
   margin-top: 1rem;
+  width: 260px;
 }
 
 .start-btn:active {
   transform: scale(0.95);
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
 }
 
 .start-btn.hidden {
   display: none;
+}
+
+.start-pc-btn {
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid #ffffff;
+  padding: 12px 28px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s, color 0.2s;
+  font-family: inherit;
+  width: 260px;
+}
+
+.start-pc-btn:active {
+  transform: scale(0.95);
+}
+
+.start-pc-btn.hidden {
+  display: none;
+}
+
+.agency-footer {
+  margin-top: auto;
+  margin-bottom: 20px;
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.agency-footer a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
 }
 
 /* ─── Scanning HUD ─── */
