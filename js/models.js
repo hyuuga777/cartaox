@@ -85,11 +85,11 @@ export function loadComposedScene() {
               
               mats.forEach(mat => {
                 if (mat.map) {
-                  mat.map.colorSpace = THREE.SRGBColorSpace;
+                  mat.map.encoding = THREE.sRGBEncoding;
                   mat.map.needsUpdate = true;
                 }
                 if (mat.emissiveMap) {
-                  mat.emissiveMap.colorSpace = THREE.SRGBColorSpace;
+                  mat.emissiveMap.encoding = THREE.sRGBEncoding;
                   mat.emissiveMap.needsUpdate = true;
                 }
                 if (mat.transparent) {
