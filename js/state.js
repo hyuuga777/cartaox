@@ -24,7 +24,7 @@ const state = {
   models: {
     novaCaixa: {
       id: 'novaCaixa',
-      path: 'assets/3d/novaCaixa.glb',
+      path: 'assets/3d/novaCaixa.glb?v=2',
       visible: true,
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
@@ -34,7 +34,7 @@ const state = {
     },
     flores: {
       id: 'flores',
-      path: 'assets/3d/flores.glb',
+      path: 'assets/3d/flores.glb?v=2',
       visible: true,
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
@@ -45,7 +45,7 @@ const state = {
 
     'mamo-letras': {
       id: 'mamo-letras',
-      path: 'assets/3d/mamo-letras.glb',
+      path: 'assets/3d/mamo-letras.glb?v=2',
       visible: true,
       position: { x: 0, y: 0.1, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
@@ -56,7 +56,7 @@ const state = {
 
     gramanova: {
       id: 'gramanova',
-      path: 'assets/3d/gramanova.glb',
+      path: 'assets/3d/gramanova.glb?v=2',
       visible: true,
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
@@ -66,7 +66,7 @@ const state = {
     },
     novacolecaofrase: {
       id: 'novacolecaofrase',
-      path: 'assets/3d/novacolecaofrase.glb',
+      path: 'assets/3d/novacolecaofrase.glb?v=2',
       visible: true,
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
@@ -76,7 +76,7 @@ const state = {
     },
     givermy: {
       id: 'givermy',
-      path: 'assets/3d/givermy.glb',
+      path: 'assets/3d/givermy.glb?v=2',
       visible: true,
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },

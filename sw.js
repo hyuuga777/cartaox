@@ -21,12 +21,12 @@ const ASSETS_TO_CACHE = [
   './assets/images/logo_mamo.png',
   './assets/images/qrcode.png',
   './targets.mind',
-  './assets/3d/novaCaixa.glb',
-  './assets/3d/flores.glb',
-  './assets/3d/mamo-letras.glb',
-  './assets/3d/gramanova.glb',
-  './assets/3d/novacolecaofrase.glb',
-  './assets/3d/givermy.glb'
+  './assets/3d/novaCaixa.glb?v=2',
+  './assets/3d/flores.glb?v=2',
+  './assets/3d/mamo-letras.glb?v=2',
+  './assets/3d/gramanova.glb?v=2',
+  './assets/3d/novacolecaofrase.glb?v=2',
+  './assets/3d/givermy.glb?v=2'
 ];
 
 self.addEventListener('install', event => {
