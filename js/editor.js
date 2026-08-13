@@ -1,5 +1,5 @@
 import state from './state.js';
-import targetsConfig from './targets.js';
+import targetsConfig from './targets-config.js';
 import lighting from './lighting.js';
 import models from './models.js';
 

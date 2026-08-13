@@ -7,7 +7,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import state from './state.js';
-import targetsConfig from './targets.js';
+import targetsConfig from './targets-config.js';
 
 // Cache local de objetos carregados
 const loadedModels = {
@@ -57,7 +57,7 @@ export function loadComposedScene() {
     const targetDef = targetsConfig.targets.find(t => t.index === 0);
     const modelConfigs = targetDef.composition;
 
-    // Carrega cada modelo listado no estado do targets.js
+    // Carrega cada modelo listado no estado do targets-config.js
     Object.keys(modelConfigs).forEach((modelId) => {
       const config = modelConfigs[modelId];
       const modelState = state.models[modelId];
@@ -116,7 +116,7 @@ export function loadComposedScene() {
             }
           });
 
-          // Aplica transformações iniciais de targets.js
+          // Aplica transformações iniciais de targets-config.js
           let t = config.animation ? config.animation.startTransform : config.initialTransform;
           if (!t) t = { position: {x:0,y:0,z:0}, rotation: {x:0,y:0,z:0}, scale: {x:1,y:1,z:1} };
           modelScene.position.set(t.position.x, t.position.y, t.position.z);

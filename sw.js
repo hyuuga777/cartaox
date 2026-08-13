@@ -4,7 +4,7 @@
  * buscados do servidor antes de recorrer ao cache local.
  */
 
-const CACHE_NAME = 'mamo-ar-cache-v8';
+const CACHE_NAME = 'mamo-ar-cache-v9';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -12,7 +12,7 @@ const ASSETS_TO_CACHE = [
   './css/app.css',
   './manifest.json',
   './js/state.js',
-  './js/targets.js',
+  './js/targets-config.js',
   './js/models.js',
   './js/lighting.js',
   './js/interactions.js',

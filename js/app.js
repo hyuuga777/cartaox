@@ -9,7 +9,7 @@ import { MindARThree } from 'mindar-image-three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import state from './state.js';
-import targetsConfig from './targets.js';
+import targetsConfig from './targets-config.js';
 import models from './models.js';
 import lighting from './lighting.js';
 import interactions from './interactions.js';
