@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;900&display=swap" rel="stylesheet">
 
   <!-- CSS Customizado (UI Touch-First) -->
-  <link rel="stylesheet" href="css/app.css?v=1.1">
+  <link rel="stylesheet" href="css/app.css?v=1.2">
 
   <!--
     MindAR 1.2.5 e Three.js usam ES Modules.
@@ -78,14 +78,14 @@
   <div id="error-msg"></div>
 
   <!-- Aplicação principal como módulo ESM -->
-  <script type="module" src="js/app.js?v=2"></script>
+  <script type="module" src="js/app.js?v=3"></script>
 
   <script>
     document.addEventListener('gesturestart', event => event.preventDefault());
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
+        navigator.serviceWorker.register('sw-v10.js')
           .then(reg => console.log('[PWA] Service Worker registrado no escopo:', reg.scope))
           .catch(err => console.error('[PWA] Falha ao registrar o Service Worker:', err));
       });
