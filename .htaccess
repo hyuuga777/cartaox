@@ -1,0 +1,7 @@
+<IfModule mod_mime.c>
+  AddType model/gltf-binary .glb
+  AddType model/gltf+json .gltf
+  AddType application/octet-stream .mind
+  AddType application/json .json
+  AddType application/javascript .js
+</IfModule>
