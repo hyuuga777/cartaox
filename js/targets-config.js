@@ -47,7 +47,7 @@ const targetsConfig = {
           material: {
             color: "#ffffff",
             metalness: 0,
-            roughness: 1,
+            roughness: 0,
             isOccluder: false
           },
           animation: {
@@ -98,7 +98,7 @@ const targetsConfig = {
           name: "Grama Nova",
           material: {
             color: "#ffffff",
-            metalness: 0,
+            metalness: 1,
             roughness: 1,
             isOccluder: false
           },
