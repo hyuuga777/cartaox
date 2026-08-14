@@ -99,6 +99,9 @@ async function initAR() {
     // Agora que os modelos carregaram, podemos esconder o splash totalmente
     if (splash) splash.classList.add('hidden');
     
+    // Ajuste global para que toda a cena fique mais para baixo (alinhada em cima do QR code)
+    composedScene.position.set(0, -0.6, 0);
+
     // Adiciona o grupo da cena composta ao âncora do alvo
     anchor.group.add(composedScene);
     
