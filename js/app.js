@@ -134,20 +134,42 @@ async function initAR() {
     if (startBtn) startBtn.classList.remove('hidden');
     if (loadingIndicator) loadingIndicator.classList.add('hidden');
 
-    let message = `Erro: ${error?.message || error?.name || 'falha desconhecida'}`;
-    if (error?.name === 'NotAllowedError') {
+    // Algumas versões móveis do MindAR repassam um erro vazio quando o
+    // navegador recusa a câmera. Nesses casos, diagnostica o ambiente em vez
+    // de mostrar apenas "falha desconhecida".
+    let cameraCount = null;
+    try {
+      if (navigator.mediaDevices?.enumerateDevices) {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        cameraCount = devices.filter(device => device.kind === 'videoinput').length;
+      }
+    } catch (diagnosticError) {
+      console.warn('[AR] Não foi possível enumerar as câmeras:', diagnosticError);
+    }
+
+    let message = `Erro: ${error?.message || error?.name || 'MindAR não conseguiu iniciar a câmera'}`;
+    if (!window.isSecureContext || location.protocol !== 'https:') {
+      message = 'A câmera exige HTTPS. Abra esta experiência usando https://.';
+    } else if (!navigator.mediaDevices?.getUserMedia) {
+      message = 'Este navegador não disponibilizou a API de câmera. Teste no Safari ou Chrome atualizado.';
+    } else if (cameraCount === 0) {
+      message = 'Nenhuma câmera foi encontrada neste dispositivo ou no navegador de teste.';
+    } else if (error?.name === 'NotAllowedError') {
       message = 'Permissão de câmera negada. Autorize a câmera nas configurações do navegador.';
     } else if (error?.name === 'NotFoundError' || error?.name === 'DevicesNotFoundError') {
       message = 'Nenhuma câmera compatível foi encontrada neste dispositivo.';
     } else if (error?.name === 'NotReadableError' || error?.name === 'TrackStartError') {
       message = 'A câmera está em uso por outro aplicativo. Feche-o e tente novamente.';
     } else if (error?.name === 'SecurityError') {
-      message = 'A câmera exige HTTPS. Abra o site usando um endereço https://.';
+      message = 'O navegador bloqueou o acesso à câmera por segurança. Verifique as permissões do site.';
     } else if (error?.message?.includes('target') || error?.message?.includes('.mind')) {
       message = `Não foi possível carregar o arquivo de rastreamento: ${targetsConfig.mindSrc}`;
     } else if (error?.message?.includes('MindAR') || error?.message?.includes('module')) {
       message = 'O motor AR não carregou. Atualize a página e verifique a conexão com a CDN.';
+    } else if (cameraCount > 0) {
+      message = 'A câmera existe, mas o navegador recusou a inicialização do MindAR. Recarregue e autorize a câmera para este site.';
     }
+    console.error('[AR DIAGNÓSTICO]', { secureContext: window.isSecureContext, protocol: location.protocol, cameraCount, error });
     showErrorMessage(message);
   }
 }
