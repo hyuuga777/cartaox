@@ -78,14 +78,14 @@
   <div id="error-msg"></div>
 
   <!-- Aplicação principal como módulo ESM -->
-  <script type="module" src="js/app.js?v=6"></script>
+  <script type="module" src="js/app.js?v=7"></script>
 
   <script>
     document.addEventListener('gesturestart', event => event.preventDefault());
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw-v13.js')
+        navigator.serviceWorker.register('sw-v14.js')
           .then(reg => console.log('[PWA] Service Worker registrado no escopo:', reg.scope))
           .catch(err => console.error('[PWA] Falha ao registrar o Service Worker:', err));
       });
