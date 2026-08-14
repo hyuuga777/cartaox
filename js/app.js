@@ -99,8 +99,12 @@ async function initAR() {
     // Agora que os modelos carregaram, podemos esconder o splash totalmente
     if (splash) splash.classList.add('hidden');
     
-    // Ajuste global para que toda a cena fique mais para baixo (alinhada em cima do QR code)
-    composedScene.position.set(0, -0.6, 0);
+    // Ajuste global: o rastreador (QR code) foi compilado rotacionado 90 graus.
+    // Para deixar a cena em pé na tela do celular, rotacionamos o grupo inteiro -90 graus.
+    composedScene.rotation.z = -Math.PI / 2;
+    
+    // Como rotacionamos, para deslocar a cena "para baixo" na tela, usamos o eixo X negativo.
+    composedScene.position.set(-0.6, 0, 0);
 
     // Adiciona o grupo da cena composta ao âncora do alvo
     anchor.group.add(composedScene);
