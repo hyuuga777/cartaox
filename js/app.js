@@ -47,10 +47,11 @@ async function initAR() {
 
     const { renderer, scene, camera } = mindarThree;
 
-    // Configurações recomendadas do renderer para PBR e mobile
+    // Configurações recomendadas do renderer para PBR e mobile (Three.js r137)
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.0;
-    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMappingExposure = 1.2; // Aumentado levemente para brilho
+    if (renderer.outputEncoding !== undefined) renderer.outputEncoding = THREE.sRGBEncoding;
+    if (renderer.outputColorSpace !== undefined) renderer.outputColorSpace = 'srgb';
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -83,16 +84,33 @@ async function initAR() {
     await mindarThree.start();
     console.log('MindARThree iniciado com sucesso!');
 
-    // Oculta splash screen e exibe o HUD do scanner assim que a câmera abre
-    if (splash) splash.classList.add('hidden');
+    // Exibe o HUD do scanner assim que a câmera abre, mas mantém o splash parcial
+    // para mostrar o progresso do download dos modelos pesados (80MB+).
     if (hud) hud.classList.remove('hidden');
+    const startBtn = document.querySelector('#start-btn');
+    const loadingIndicator = document.querySelector('#loading-indicator');
+    if (startBtn) startBtn.classList.add('hidden');
+    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
 
     // 5. Carrega a Cena Composta (composedScene contendo os 4 GLBs)
     console.log('Iniciando o carregamento dos modelos 3D...');
     composedScene = await models.loadComposedScene();
     
+    // Agora que os modelos carregaram, podemos esconder o splash totalmente
+    if (splash) splash.classList.add('hidden');
+    
     // Adiciona o grupo da cena composta ao âncora do alvo
     anchor.group.add(composedScene);
+    
+    // DEBUG: Cubo de teste para confirmar que o renderizador está funcionando
+    // mesmo se os modelos GLB falharem ou estiverem fora de posição.
+    const debugBox = new THREE.Mesh(
+      new THREE.BoxGeometry(0.1, 0.1, 0.1),
+      new THREE.MeshStandardMaterial({ color: 0x00ff00, emissive: 0x003300 })
+    );
+    debugBox.position.set(0, 0, 0);
+    anchor.group.add(debugBox);
+    
     console.log('Cena composta adicionada com sucesso ao âncora!');
 
     // 6. Inicializa Interações de Toque (Raycaster)
@@ -219,8 +237,9 @@ async function initDesktopMode() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.0;
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMappingExposure = 1.2;
+    if (renderer.outputEncoding !== undefined) renderer.outputEncoding = THREE.sRGBEncoding;
+    if (renderer.outputColorSpace !== undefined) renderer.outputColorSpace = 'srgb';
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
