@@ -101,7 +101,10 @@ export function loadComposedScene() {
                     mat.colorWrite = false;
                     mat.depthWrite = true;
                     node.renderOrder = -1; // Ensure occluders render early
+                  } else {
+                    mat.colorWrite = true;
                   }
+
                   if (config.material.color && mat.color && !config.material.isOccluder) {
                     mat.color.set(config.material.color);
                   }

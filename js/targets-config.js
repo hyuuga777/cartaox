@@ -20,7 +20,7 @@ const targetsConfig = {
           name: "Caixa / Base",
           material: {
             color: "#ffffff",
-            metalness: 0,
+            metalness: 0.25,
             roughness: 1,
             isOccluder: false
           },
@@ -72,7 +72,7 @@ const targetsConfig = {
           name: "Letras Mamo",
           material: {
             color: "#ffffff",
-            metalness: 0,
+            metalness: 0.29,
             roughness: 1,
             isOccluder: false
           },
@@ -87,7 +87,7 @@ const targetsConfig = {
               scale: { x: 0.051, y: 0.051, z: 0.051 }
             },
             endTransform: {
-              position: { x: 0.434506037639665, y: 1.808443242078389, z: 0.08452585988138796 },
+              position: { x: 0.434506037639665, y: 1.764089081342429, z: 0.08452585988138796 },
               rotation: { x: -1.5707963267948966, y: 0, z: 0 },
               scale: { x: 0.52, y: 0.52, z: 0.49 }
             }
@@ -115,7 +115,7 @@ const targetsConfig = {
             endTransform: {
               position: { x: 0, y: 0, z: 0 },
               rotation: { x: -1.5707963267948966, y: 0, z: 0 },
-              scale: { x: 1, y: 1, z: 1 }
+              scale: { x: 1, y: 1, z: 0.9299999999999999 }
             }
           }
         },
@@ -124,13 +124,13 @@ const targetsConfig = {
           name: "Nova Frase (24/08)",
           material: {
             color: "#ffffff",
-            metalness: 0,
+            metalness: 0.23,
             roughness: 1,
             isOccluder: false
           },
           animation: {
             time: {
-              start: 3.5,
+              start: 1.5,
               end: 10
             },
             startTransform: {
@@ -141,7 +141,7 @@ const targetsConfig = {
             endTransform: {
               position: { x: -0.10854677273863106, y: 1.1000185047652504, z: 0.1 },
               rotation: { x: -1.5707963267948966, y: 0, z: 0 },
-              scale: { x: 0.3, y: 0.3, z: 0.5 }
+              scale: { x: 0.34999999999999964, y: 0.34999999999999964, z: 0.34999999999999964 }
             }
           }
         },
