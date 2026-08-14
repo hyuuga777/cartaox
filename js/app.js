@@ -57,6 +57,25 @@ async function initAR() {
     // 2. Adiciona o Âncora (Target Index 0)
     const anchor = mindarThree.addAnchor(0);
 
+    // Registra os callbacks antes de iniciar a câmera e antes de baixar os GLBs.
+    // Os modelos atuais são grandes; sem esta ordem, o alvo poderia ser
+    // encontrado enquanto os modelos carregavam e o evento seria perdido.
+    anchor.onTargetFound = () => {
+      console.log('Target QR Code detectado!');
+      state.updateAR({
+        isTracking: true,
+        activeTargetIndex: 0,
+        trackingStartTime: performance.now() / 1000
+      });
+      state.updateAR({ composedScene: { visible: true } });
+    };
+
+    anchor.onTargetLost = () => {
+      console.log('Target QR Code perdido!');
+      state.updateAR({ isTracking: false });
+      state.updateAR({ composedScene: { visible: false } });
+    };
+
     // 3. Inicializa as Luzes da Cena
     lighting.initLighting(scene);
 
@@ -79,22 +98,7 @@ async function initAR() {
     // 6. Inicializa Interações de Toque (Raycaster)
     interactions.initInteractions(renderer.domElement, camera, composedScene);
 
-    // 7. Escuta os eventos do Target
-    anchor.onTargetFound = () => {
-      console.log('Target QR Code detectado!');
-      state.updateAR({ 
-        isTracking: true, 
-        activeTargetIndex: 0,
-        trackingStartTime: performance.now() / 1000
-      });
-      state.updateAR({ composedScene: { visible: true } });
-    };
-
-    anchor.onTargetLost = () => {
-      console.log('Target QR Code perdido!');
-      state.updateAR({ isTracking: false });
-      state.updateAR({ composedScene: { visible: false } });
-    };
+    // 7. Inicia o loop de renderização.
     renderer.setAnimationLoop(() => {
       const deltaTime = clock.getDelta();
 
