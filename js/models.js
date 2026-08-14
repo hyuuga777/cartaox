@@ -1,7 +1,7 @@
 /**
  * models.js
  * Pipeline de carregamento assíncrono e gerenciamento dos modelos GLB.
- * Combina flores.glb, givemy-letras.glb, grama.glb e mamo-letras.glb em um único grupo.
+ * Combina os seis GLBs ativos da cena em um único grupo.
  */
 
 import * as THREE from 'three';

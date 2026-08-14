@@ -98,19 +98,15 @@ export function initEditor() {
     // -- ADICIONAR NOVO OBJETO --
     const addFolder = gui.addFolder('➕ Adicionar Novo Objeto');
     const addState = {
-      modelOptions: 'caixa.glb',
+      modelOptions: 'flores.glb',
     };
     const availableModels = [
-      'caixa.glb',
       'flores.glb',
-      'givemy-letras.glb',
       'givermy.glb',
-      'grama.glb',
+      'gramanova.glb',
       'mamo-letras.glb',
       'novaCaixa.glb',
-      'gramanova.glb',
-      'novacolecaofrase.glb',
-      'planer.glb'
+      'novacolecaofrase.glb'
     ];
     
     addFolder.add(addState, 'modelOptions', availableModels).name('Escolher Modelo');
