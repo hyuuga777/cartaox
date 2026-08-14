@@ -1,15 +1,15 @@
 /*
  * Service Worker da experiência Mamo AR.
- * v17: invalida a UI antiga, preserva carregamento network-first dos GLBs
- * e evita colocar arquivos 3D grandes no Cache Storage.
+ * Usa Network First para que as correções de câmera e os novos assets sejam
+ * buscados do servidor antes de recorrer ao cache local.
  */
 
-const CACHE_NAME = 'mamo-ar-cache-v17';
+const CACHE_NAME = 'mamo-ar-cache-v15';
 
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './css/app.css?v=1.3',
+  './css/app.css',
   './manifest.json',
   './js/state.js',
   './js/targets-config.js',
@@ -19,10 +19,10 @@ const ASSETS_TO_CACHE = [
   './js/interactions.js',
   './js/editor.js',
   './js/app.js',
-  './js/app.js?v=10',
+  './js/app.js?v=8',
   './assets/images/logo_mamo.png',
   './assets/images/qrcode.png',
-  './targets.mind?v=11'
+  './targets.mind?v=11',
 ];
 
 self.addEventListener('install', event => {
@@ -62,6 +62,8 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     fetch(event.request)
       .then(networkResponse => {
+        // Os GLBs grandes devem ser baixados pela rede, mas não guardados no
+        // Cache Storage. Isso evita falhas de Cache.put em celulares/Chrome.
         if (networkResponse && networkResponse.status === 200 && !isLargeModel) {
           const copy = networkResponse.clone();
           caches.open(CACHE_NAME)
