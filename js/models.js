@@ -6,6 +6,7 @@
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import state from './state.js';
 import targetsConfig from './targets-config.js';
 
@@ -29,6 +30,12 @@ export function loadComposedScene() {
   return new Promise((resolve, reject) => {
     const loadingManager = new THREE.LoadingManager();
     const loader = new GLTFLoader(loadingManager);
+
+    // Os GLBs otimizados usam KHR_draco_mesh_compression.
+    // O decoder é baixado somente quando necessário e não aumenta o bundle do app.
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
+    loader.setDRACOLoader(dracoLoader);
     const composedGroup = new THREE.Group();
     composedGroup.name = 'composedScene';
 
@@ -85,7 +92,7 @@ export function loadComposedScene() {
               
               mats.forEach(mat => {
                 if (mat.map) {
-                  mat.map.encoding = THREE.sRGBEncoding;
+                  mat.encoding = THREE.sRGBEncoding;
                   mat.map.needsUpdate = true;
                 }
                 if (mat.emissiveMap) {

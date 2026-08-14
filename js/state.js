@@ -34,7 +34,7 @@ const state = {
     },
     flores: {
       id: 'flores',
-      path: 'assets/3d/flores.glb?v=2',
+      path: 'assets/3d/flores.glb?v=3',
       visible: true,
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
@@ -56,7 +56,7 @@ const state = {
 
     gramanova: {
       id: 'gramanova',
-      path: 'assets/3d/gramanova.glb?v=2',
+      path: 'assets/3d/gramanova.glb?v=3',
       visible: true,
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
@@ -66,7 +66,7 @@ const state = {
     },
     novacolecaofrase: {
       id: 'novacolecaofrase',
-      path: 'assets/3d/novacolecaofrase.glb?v=2',
+      path: 'assets/3d/novacolecaofrase.glb?v=3',
       visible: true,
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
