@@ -85,7 +85,7 @@ async function initAR() {
     console.log('MindARThree iniciado com sucesso!');
 
     // Exibe o HUD do scanner assim que a câmera abre, mas mantém o splash parcial
-    // para mostrar o progresso do download dos modelos pesados (80MB+).
+    // para mostrar o progresso real do download dos modelos.
     if (hud) hud.classList.remove('hidden');
     const startBtn = document.querySelector('#start-btn');
     const loadingIndicator = document.querySelector('#loading-indicator');
@@ -229,8 +229,10 @@ async function initDesktopMode() {
   const splash = document.querySelector('#splash');
 
   try {
-    // Esconde o splash
-    if (splash) splash.classList.add('hidden');
+    // No Modo PC, a splash permanece visível durante o download para exibir
+    // a porcentagem e a orientação, e só desaparece quando a cena estiver pronta.
+    const loadingIndicator = document.querySelector('#loading-indicator');
+    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
 
     // Configuração básica do Three.js
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -263,6 +265,7 @@ async function initDesktopMode() {
     console.log('Iniciando o carregamento dos modelos 3D no Modo PC...');
     composedScene = await models.loadComposedScene();
     scene.add(composedScene);
+    if (splash) splash.classList.add('hidden');
 
     // Força o estado como se tivesse encontrado o target
     state.updateAR({ 

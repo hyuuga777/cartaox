@@ -22,10 +22,37 @@ const loadedModels = {
 const animationMixers = [];
 
 /**
+ * Atualiza a orientação visual do carregamento sem depender de alertas do navegador.
+ * O percentual usa bytes reais quando o servidor envia Content-Length e cai para
+ * a contagem de modelos concluídos quando a resposta não informa o tamanho.
+ */
+function updateLoadingUI(percent, label, detail = '') {
+  const safePercent = Math.max(0, Math.min(100, Math.round(percent)));
+  const progressBar = document.querySelector('#bar');
+  const progressPercent = document.querySelector('#loading-percent');
+  const progressDetail = document.querySelector('#loading-detail');
+  const splashHint = document.querySelector('.splash-hint');
+
+  if (progressBar) {
+    progressBar.style.width = `${safePercent}%`;
+    progressBar.setAttribute('aria-valuenow', String(safePercent));
+  }
+  if (progressPercent) progressPercent.textContent = `${safePercent}%`;
+  if (progressDetail) progressDetail.textContent = detail;
+  if (splashHint) splashHint.textContent = label;
+}
+
+/**
  * Carrega todos os modelos da composedScene em paralelo.
- * @param {THREE.LoadingManager} manager 
  * @returns {Promise<THREE.Group>} Grupo com todos os modelos ancorados
  */
+function formatBytes(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return 'tamanho desconhecido';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  return `${(bytes / (1024 ** index)).toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
+}
+
 export function loadComposedScene() {
   return new Promise((resolve, reject) => {
     const loadingManager = new THREE.LoadingManager();
@@ -39,18 +66,37 @@ export function loadComposedScene() {
     const composedGroup = new THREE.Group();
     composedGroup.name = 'composedScene';
 
-    const splashHint = document.querySelector('.splash-hint');
-    const progressBar = document.querySelector('#bar'); // caso tenhamos adicionado na UI ou barra de progresso
+    // Definição da cena para o alvo qrcode (índice 0)
+    const targetDef = targetsConfig.targets.find(t => t.index === 0);
+    const modelConfigs = targetDef.composition;
+    const modelIds = Object.keys(modelConfigs);
+    const modelProgress = new Map(modelIds.map((modelId) => [modelId, { loaded: 0, total: 0, complete: false }]));
+    updateLoadingUI(0, 'Preparando a experiência 3D...', 'Baixando os elementos da cena');
 
-    // Configuração de feedback visual do Loading Manager
-    loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
-      const percentage = Math.round((itemsLoaded / itemsTotal) * 100);
-      if (splashHint) {
-        splashHint.innerHTML = `Carregando modelos 3D...<br>${percentage}% (${itemsLoaded}/${itemsTotal})`;
+    const refreshProgress = () => {
+      const entries = [...modelProgress.values()];
+      const allHaveByteTotals = entries.every((entry) => entry.total > 0);
+      const allComplete = entries.every((entry) => entry.complete);
+      let percentage;
+      let detail;
+
+      if (allHaveByteTotals) {
+        const loadedBytes = entries.reduce((sum, entry) => sum + Math.min(entry.loaded, entry.total), 0);
+        const totalBytes = entries.reduce((sum, entry) => sum + entry.total, 0);
+        percentage = allComplete ? 100 : (totalBytes ? (loadedBytes / totalBytes) * 100 : 0);
+        detail = `${formatBytes(loadedBytes)} de ${formatBytes(totalBytes)}`;
+      } else {
+        const completed = entries.filter((entry) => entry.complete).length;
+        percentage = allComplete ? 100 : (completed / entries.length) * 100;
+        detail = `${completed} de ${entries.length} elementos concluídos`;
       }
+
+      updateLoadingUI(percentage, allComplete ? 'Modelos 3D prontos!' : 'Carregando modelos 3D...', detail);
     };
 
     loadingManager.onLoad = () => {
+      modelProgress.forEach((entry) => { entry.complete = true; });
+      refreshProgress();
       console.log('Todos os modelos GLB foram carregados com sucesso!');
       resolve(composedGroup);
     };
@@ -60,18 +106,21 @@ export function loadComposedScene() {
       reject(new Error(`Falha ao carregar o modelo 3D em: ${url}`));
     };
 
-    // Definição da cena para o alvo qrcode (índice 0)
-    const targetDef = targetsConfig.targets.find(t => t.index === 0);
-    const modelConfigs = targetDef.composition;
-
     // Carrega cada modelo listado no estado do targets-config.js
-    Object.keys(modelConfigs).forEach((modelId) => {
+    modelIds.forEach((modelId) => {
       const config = modelConfigs[modelId];
       const modelState = state.models[modelId];
 
       loader.load(
         modelState.path,
         (gltf) => {
+          const progress = modelProgress.get(modelId);
+          if (progress) {
+            progress.complete = true;
+            if (progress.total > 0) progress.loaded = progress.total;
+            refreshProgress();
+          }
+
           const modelScene = gltf.scene;
           modelScene.name = modelId;
 
@@ -92,7 +141,9 @@ export function loadComposedScene() {
               
               mats.forEach(mat => {
                 if (mat.map) {
-                  mat.encoding = THREE.sRGBEncoding;
+                  // No Three.js r137, somente a textura de cor/albedo é sRGB.
+                  // Não alteramos o material base nem as texturas técnicas.
+                  mat.map.encoding = THREE.sRGBEncoding;
                   mat.map.needsUpdate = true;
                 }
                 if (mat.emissiveMap) {
@@ -156,9 +207,16 @@ export function loadComposedScene() {
           // Adiciona ao grupo principal da cena composta
           composedGroup.add(modelScene);
         },
-        undefined,
+        (xhr) => {
+          const progress = modelProgress.get(modelId);
+          if (!progress || !xhr) return;
+          progress.loaded = xhr.loaded || 0;
+          progress.total = xhr.total || progress.total || 0;
+          refreshProgress();
+        },
         (err) => {
           console.error(`Erro ao carregar o modelo ${modelId}:`, err);
+          reject(new Error(`Falha ao carregar o modelo 3D ${modelId}.`));
         }
       );
     });

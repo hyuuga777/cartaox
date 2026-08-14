@@ -4,7 +4,7 @@ FROM nginx:1.27-alpine
 RUN mkdir -p /usr/share/nginx/html/assets/3d /usr/share/nginx/html/assets/images
 
 # Arquivos principais da experiência
-COPY index.html manifest.json targets.mind sw.js sw-v14.js /usr/share/nginx/html/
+COPY index.html manifest.json targets.mind sw.js sw-v17.js /usr/share/nginx/html/
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY css /usr/share/nginx/html/css
 COPY js /usr/share/nginx/html/js
