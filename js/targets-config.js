@@ -215,56 +215,6 @@ const targetsConfig = {
       }
     }
   },
-  "novacolecaofrase": {
-    "id": "novacolecaofrase",
-    "name": "Nova Frase (24/08)",
-    "material": {
-      "color": "#ffffff",
-      "metalness": 0.23,
-      "roughness": 1,
-      "isOccluder": false
-    },
-    "animation": {
-      "time": {
-        "start": 1.5,
-        "end": 10
-      },
-      "startTransform": {
-        "position": {
-          "x": 0.05063153972915263,
-          "y": 1.8338616212617276,
-          "z": 0.1
-        },
-        "rotation": {
-          "x": 0,
-          "y": 0,
-          "z": 0
-        },
-        "scale": {
-          "x": 0.049999999999999684,
-          "y": 0.049999999999999684,
-          "z": 0.049999999999999684
-        }
-      },
-      "endTransform": {
-        "position": {
-          "x": 0.05063153972915263,
-          "y": 1.8338616212617276,
-          "z": 0.1
-        },
-        "rotation": {
-          "x": 0,
-          "y": 0,
-          "z": 0
-        },
-        "scale": {
-          "x": 0.049999999999999684,
-          "y": 0.049999999999999684,
-          "z": 0.049999999999999684
-        }
-      }
-    }
-  },
   "givermy": {
     "id": "givermy",
     "name": "Letras Givermy (Novo)",

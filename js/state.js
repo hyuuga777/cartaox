@@ -64,16 +64,6 @@ const state = {
       opacity: 1.0,
       playing: true
     },
-    novacolecaofrase: {
-      id: 'novacolecaofrase',
-      path: 'assets/3d/novonovo.glb',
-      visible: true,
-      position: { x: 0, y: 0, z: 0 },
-      rotation: { x: 0, y: 0, z: 0 },
-      scale: { x: 1, y: 1, z: 1 },
-      opacity: 1.0,
-      playing: true
-    },
     givermy: {
       id: 'givermy',
       path: 'assets/3d/givermy.glb?v=2',
