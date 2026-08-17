@@ -99,9 +99,8 @@ async function initAR() {
     // Agora que os modelos carregaram, podemos esconder o splash totalmente
     if (splash) splash.classList.add('hidden');
     
-    // Ajuste global: deita a cena sobre o QR Code (rotaciona -90 graus no eixo X)
-    composedScene.rotation.x = -Math.PI / 2;
-    composedScene.rotation.z = 0;
+    // Ajuste global: a experiência fica plana sobre o QR Code
+    composedScene.rotation.set(0, 0, 0);
     composedScene.position.set(0, 0, 0);
 
     // Adiciona o grupo da cena composta ao âncora do alvo
