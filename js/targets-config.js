@@ -19,7 +19,7 @@ const targetsConfig = {
           id: "novaCaixa",
           name: "Caixa / Base",
           material: {
-            color: "#ffffff",
+            color: "#4CAF50",
             metalness: 0.25,
             roughness: 1,
             isOccluder: false
