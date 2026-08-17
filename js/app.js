@@ -100,8 +100,8 @@ async function initAR() {
     if (splash) splash.classList.add('hidden');
     
     // Ajuste global para AR (Cartão de Visita): faz a cena "brotar" (ficar em pé) sobre o cartão deitado.
-    // O eixo Y dos modelos passa a apontar para fora (Z) da imagem do MindAR.
-    composedScene.rotation.set(-Math.PI / 2, 0, 0);
+    // E vira a cena em 180 graus (Math.PI no Y) para que fique de frente para a outra extremidade do QR Code.
+    composedScene.rotation.set(-Math.PI / 2, Math.PI, 0);
     composedScene.position.set(0, 0, 0);
 
     // Adiciona o grupo da cena composta ao âncora do alvo
@@ -284,8 +284,8 @@ async function initDesktopMode() {
           depthWrite: false // Evita problemas de z-fighting com os modelos no chão
         })
       );
-      // Deita o QR Code no chão (rotaciona -90 graus no eixo X) para servir de tapete
-      qrPlane.rotation.x = -Math.PI / 2;
+      // Deita o QR Code no chão (rotaciona -90 graus no eixo X) e vira 180 graus no Z
+      qrPlane.rotation.set(-Math.PI / 2, 0, Math.PI);
       // Posiciona levemente abaixo do chão (Y = -0.01) para não conflitar com a grama
       qrPlane.position.set(0, -0.01, 0); 
       scene.add(qrPlane);
