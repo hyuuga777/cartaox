@@ -66,7 +66,7 @@ const state = {
     },
     novacolecaofrase: {
       id: 'novacolecaofrase',
-      path: 'assets/3d/novacolecaofrase.glb?v=2',
+      path: 'assets/3d/123.glb',
       visible: true,
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
