@@ -268,6 +268,26 @@ async function initDesktopMode() {
     composedScene = await models.loadComposedScene();
     scene.add(composedScene);
 
+    // Adiciona o QR Code como referência visual no Modo PC
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.load('assets/images/qrcode.png', (texture) => {
+      // O MindAR cria o alvo com largura de 1 unidade (escala 1x1 se for quadrado)
+      const aspect = texture.image.width / texture.image.height;
+      const qrPlane = new THREE.Mesh(
+        new THREE.PlaneGeometry(1, 1 / aspect),
+        new THREE.MeshBasicMaterial({ 
+          map: texture, 
+          transparent: true, 
+          opacity: 0.5, // 50% transparente para não atrapalhar tanto
+          side: THREE.DoubleSide,
+          depthWrite: false // Evita problemas de z-fighting com os modelos no chão
+        })
+      );
+      // O MindAR por padrão coloca o target no plano X-Y (Z=0).
+      qrPlane.position.set(0, 0, -0.01); // Levemente para trás para não cobrir a grama
+      scene.add(qrPlane);
+    });
+
     // Força o estado como se tivesse encontrado o target
     state.updateAR({ 
       isTracking: true, 
