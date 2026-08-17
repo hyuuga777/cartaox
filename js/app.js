@@ -274,7 +274,7 @@ async function initDesktopMode() {
       // O MindAR cria o alvo com largura de 1 unidade (escala 1x1 se for quadrado)
       const aspect = texture.image.width / texture.image.height;
       const qrPlane = new THREE.Mesh(
-        new THREE.PlaneGeometry(1, 1 / aspect),
+        new THREE.PlaneGeometry(2, 2 / aspect), // Dobrado conforme solicitado
         new THREE.MeshBasicMaterial({ 
           map: texture, 
           transparent: true, 
