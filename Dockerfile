@@ -10,12 +10,6 @@ COPY css /usr/share/nginx/html/css
 COPY js /usr/share/nginx/html/js
 COPY assets/images /usr/share/nginx/html/assets/images
 
-# Apenas os modelos usados pela cena atual
-COPY assets/3d/novaCaixa.glb /usr/share/nginx/html/assets/3d/novaCaixa.glb
-COPY assets/3d/flores.glb /usr/share/nginx/html/assets/3d/flores.glb
-COPY assets/3d/mamo-letras.glb /usr/share/nginx/html/assets/3d/mamo-letras.glb
-COPY assets/3d/gramanova.glb /usr/share/nginx/html/assets/3d/gramanova.glb
-COPY assets/3d/novacolecaofrase.glb /usr/share/nginx/html/assets/3d/novacolecaofrase.glb
-COPY assets/3d/givermy.glb /usr/share/nginx/html/assets/3d/givermy.glb
-
+# Copia todos os modelos permitidos pelo .dockerignore
+COPY assets/3d /usr/share/nginx/html/assets/3d
 EXPOSE 80
