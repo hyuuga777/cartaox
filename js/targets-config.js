@@ -19,7 +19,7 @@ const targetsConfig = {
     "id": "novaCaixa",
     "name": "Caixa / Base",
     "material": {
-      "color": "#4CAF50",
+      "color": "#208e24",
       "metalness": 1,
       "roughness": 1,
       "isOccluder": false
@@ -262,6 +262,32 @@ const targetsConfig = {
           "y": 0.47,
           "z": 0.47
         }
+      }
+    }
+  },
+  "novacolecao": {
+    "id": "novacolecao",
+    "name": "Letras Nova Coleção",
+    "material": {
+      "color": "#ffffff",
+      "metalness": 0,
+      "roughness": 1,
+      "isOccluder": false
+    },
+    "animation": {
+      "time": {
+        "start": 4,
+        "end": 10
+      },
+      "startTransform": {
+        "position": { "x": 0, "y": 1, "z": 0.1 },
+        "rotation": { "x": 0, "y": 0, "z": 0 },
+        "scale": { "x": 0.5, "y": 0.5, "z": 0.5 }
+      },
+      "endTransform": {
+        "position": { "x": 0, "y": 1, "z": 0.1 },
+        "rotation": { "x": 0, "y": 0, "z": 0 },
+        "scale": { "x": 0.5, "y": 0.5, "z": 0.5 }
       }
     }
   }

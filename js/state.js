@@ -34,7 +34,7 @@ const state = {
     },
     flores: {
       id: 'flores',
-      path: 'assets/3d/flores.glb?v=2',
+      path: 'assets/3d/flores.glb?v=3',
       visible: true,
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
@@ -45,7 +45,7 @@ const state = {
 
     'mamo-letras': {
       id: 'mamo-letras',
-      path: 'assets/3d/mamo-letras.glb?v=2',
+      path: 'assets/3d/mamo-letras.glb?v=4',
       visible: true,
       position: { x: 0, y: 0.1, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
@@ -73,6 +73,16 @@ const state = {
       scale: { x: 1, y: 1, z: 1 },
       opacity: 1.0,
       playing: true
+    },
+    novacolecao: {
+      id: 'novacolecao',
+      path: 'assets/3d/letras-nova-colecao.glb?v=4',
+      visible: true,
+      position: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+      scale: { x: 1, y: 1, z: 1 },
+      opacity: 1.0,
+      playing: false
     }
   },
 
