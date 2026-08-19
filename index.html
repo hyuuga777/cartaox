@@ -87,7 +87,7 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw-v15.js')
+        navigator.serviceWorker.register('sw-v16.js')
           .then(reg => console.log('[PWA] Service Worker registrado no escopo:', reg.scope))
           .catch(err => console.error('[PWA] Falha ao registrar o Service Worker:', err));
       });
