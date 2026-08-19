@@ -39,10 +39,10 @@ async function initAR() {
       // CONFIGURAÇÕES DE TRACKING (Filtro OneEuro)
       // Ajuste para reduzir tremedeira (jitter)
       // ----------------------------------------------------
-      filterMinCF: 0.0001, // Padrão: 0.001. Diminuir ajuda a REDUZIR TREMEDEIRA (mais estável, mas pode ficar ligeiramente mais lento para acompanhar movimento rápido).
-      filterBeta: 0.001,   // Padrão: 1000. Diminuir suaviza os movimentos bruscos.
-      missTolerance: 10,   // Padrão: 5. Aumenta os frames de tolerância antes de "perder" a imagem se a iluminação falhar rápido.
-      warmupTolerance: 5   // Padrão: 5. Quantidade de frames para considerar o tracking sólido antes de mostrar a cena.
+      filterMinCF: 0.0001, // Padrão equilibrado; deixaremos a suavização final para o nosso Lerp customizado
+      filterBeta: 0.001,
+      missTolerance: 15,
+      warmupTolerance: 10
     });
 
     const { renderer, scene, camera } = mindarThree;
@@ -104,26 +104,55 @@ async function initAR() {
     composedScene.rotation.set(Math.PI / 2, 0, 0);
     composedScene.position.set(0, 0, 0);
 
-    // Adiciona o grupo da cena composta ao âncora do alvo
-    anchor.group.add(composedScene);
+    // CRIAÇÃO DO GRUPO DE SUAVIZAÇÃO (LERP)
+    const smoothedGroup = new THREE.Group();
+    scene.add(smoothedGroup);
+    
+    // Adiciona o grupo da cena composta ao grupo suavizado, e não ao âncora direto
+    smoothedGroup.add(composedScene);
+    mindarThree.smoothedGroup = smoothedGroup;
     
     // DEBUG: Cubo de teste para confirmar que o renderizador está funcionando
-    // mesmo se os modelos GLB falharem ou estiverem fora de posição.
     const debugBox = new THREE.Mesh(
       new THREE.BoxGeometry(0.1, 0.1, 0.1),
       new THREE.MeshStandardMaterial({ color: 0x00ff00, emissive: 0x003300 })
     );
     debugBox.position.set(0, 0, 0);
-    anchor.group.add(debugBox);
+    smoothedGroup.add(debugBox);
     
     console.log('Cena composta adicionada com sucesso ao âncora!');
 
     // 6. Inicializa Interações de Toque (Raycaster)
     interactions.initInteractions(renderer.domElement, camera, composedScene);
 
+    // Variáveis auxiliares para a decomposição da matriz do MindAR
+    const targetPosition = new THREE.Vector3();
+    const targetQuaternion = new THREE.Quaternion();
+    const targetScale = new THREE.Vector3();
+
     // 7. Inicia o loop de renderização.
     renderer.setAnimationLoop(() => {
       const deltaTime = clock.getDelta();
+
+      // --- SISTEMA DE LERP CUSTOMIZADO (SUAVIZAÇÃO EXTRA) ---
+      if (mindarThree.smoothedGroup) {
+        if (anchor.group.visible) {
+          mindarThree.smoothedGroup.visible = true;
+          // Decompõe a matriz do MindAR para obter a pose exata no mundo
+          anchor.group.matrix.decompose(targetPosition, targetQuaternion, targetScale);
+          
+          // O fator de interpolação (0.1) controla a suavidade. Menor = mais suave/atrasado. 
+          // Ajusta de acordo com o deltaTime para manter a suavidade independente do FPS
+          const lerpFactor = 1.0 - Math.pow(0.001, deltaTime); // Suavização baseada em tempo
+          const clampedLerp = Math.min(Math.max(lerpFactor, 0.05), 0.3); // Garante um limite razoável
+          
+          mindarThree.smoothedGroup.position.lerp(targetPosition, clampedLerp);
+          mindarThree.smoothedGroup.quaternion.slerp(targetQuaternion, clampedLerp);
+          mindarThree.smoothedGroup.scale.lerp(targetScale, clampedLerp);
+        } else {
+          mindarThree.smoothedGroup.visible = false;
+        }
+      }
 
       // Atualiza animações 3D (se houverem)
       models.updateAnimations(deltaTime);

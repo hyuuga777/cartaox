@@ -5,7 +5,7 @@
 
 const targetsConfig = {
   // Arquivo .mind compilado contendo o target
-  mindSrc: 'targets.mind?v=11',
+  mindSrc: 'targets (4).mind',
   
   // Lista de alvos suportados (no nosso caso, apenas 1 alvo no índice 0)
   targets: [
