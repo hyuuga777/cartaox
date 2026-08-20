@@ -6,6 +6,7 @@
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import state from './state.js';
 import targetsConfig from './targets-config.js';
 
@@ -29,6 +30,7 @@ export function loadComposedScene() {
   return new Promise((resolve, reject) => {
     const loadingManager = new THREE.LoadingManager();
     const loader = new GLTFLoader(loadingManager);
+    loader.setMeshoptDecoder(MeshoptDecoder);
     const composedGroup = new THREE.Group();
     composedGroup.name = 'composedScene';
 
