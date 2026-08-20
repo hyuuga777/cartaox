@@ -76,13 +76,13 @@ const targetsConfig = {
     },
     "animation": {
       "time": {
-        "start": 1,
-        "end": 10
+        "start": 0,
+        "end": 10.9
       },
       "startTransform": {
         "position": {
           "x": -0.0671,
-          "y": -0.14503356547890012,
+          "y": -1.24,
           "z": 0.07453539513636595
         },
         "rotation": {
@@ -91,9 +91,9 @@ const targetsConfig = {
           "z": 0
         },
         "scale": {
-          "x": 1.08,
-          "y": 1.41,
-          "z": 1.139999
+          "x": 0.5,
+          "y": 0.5,
+          "z": 0.5
         }
       },
       "endTransform": {
@@ -126,30 +126,13 @@ const targetsConfig = {
     },
     "animation": {
       "time": {
-        "start": 2.5,
+        "start": 0,
         "end": 10
       },
       "startTransform": {
         "position": {
-          "x": 0.16,
-          "y": 1.55,
-          "z": 0.08
-        },
-        "rotation": {
-          "x": 0,
-          "y": 0,
-          "z": 0
-        },
-        "scale": {
-          "x": 0.5,
-          "y": 0.5,
-          "z": 0.5
-        }
-      },
-      "endTransform": {
-        "position": {
-          "x": 0.160534,
-          "y": 1.552931,
+          "x": 0.02198137289333474,
+          "y": -1.38,
           "z": 0.084525
         },
         "rotation": {
@@ -158,9 +141,26 @@ const targetsConfig = {
           "z": 0
         },
         "scale": {
-          "x": 0.5,
-          "y": 0.5,
-          "z": 0.5
+          "x": 0.45,
+          "y": 0.45,
+          "z": 0.45
+        }
+      },
+      "endTransform": {
+        "position": {
+          "x": 0.02198137289333474,
+          "y": 1.8784722530980935,
+          "z": 0.084525
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "scale": {
+          "x": 0.45,
+          "y": 0.45,
+          "z": 0.45
         }
       }
     }
@@ -226,13 +226,13 @@ const targetsConfig = {
     },
     "animation": {
       "time": {
-        "start": 4,
+        "start": 0,
         "end": 10
       },
       "startTransform": {
         "position": {
-          "x": -0.84,
-          "y": 1.3,
+          "x": -0.8143333860887723,
+          "y": -1.24,
           "z": 0.1
         },
         "rotation": {
@@ -241,15 +241,15 @@ const targetsConfig = {
           "z": 0
         },
         "scale": {
-          "x": 0.47,
-          "y": 0.47,
-          "z": 0.47
+          "x": 0.42,
+          "y": 0.42,
+          "z": 0.42
         }
       },
       "endTransform": {
         "position": {
-          "x": -0.84291,
-          "y": 1.295377,
+          "x": -0.8143333860887723,
+          "y": 1.6583413792365276,
           "z": 0.1
         },
         "rotation": {
@@ -258,9 +258,9 @@ const targetsConfig = {
           "z": 0
         },
         "scale": {
-          "x": 0.47,
-          "y": 0.47,
-          "z": 0.47
+          "x": 0.42,
+          "y": 0.42,
+          "z": 0.42
         }
       }
     }
@@ -276,18 +276,42 @@ const targetsConfig = {
     },
     "animation": {
       "time": {
-        "start": 4,
+        "start": 0,
         "end": 10
       },
       "startTransform": {
-        "position": { "x": 0, "y": 1, "z": 0.1 },
-        "rotation": { "x": 0, "y": 0, "z": 0 },
-        "scale": { "x": 0.5, "y": 0.5, "z": 0.5 }
+        "position": {
+          "x": 0,
+          "y": -0.84,
+          "z": 0.1
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "scale": {
+          "x": 0.25,
+          "y": 0.25000000000000006,
+          "z": 0.25000000000000006
+        }
       },
       "endTransform": {
-        "position": { "x": 0, "y": 1, "z": 0.1 },
-        "rotation": { "x": 0, "y": 0, "z": 0 },
-        "scale": { "x": 0.5, "y": 0.5, "z": 0.5 }
+        "position": {
+          "x": 0,
+          "y": 1.4008832566980618,
+          "z": 0.1
+        },
+        "rotation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "scale": {
+          "x": 0.25,
+          "y": 0.25000000000000006,
+          "z": 0.25000000000000006
+        }
       }
     }
   }

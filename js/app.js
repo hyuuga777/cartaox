@@ -103,6 +103,7 @@ async function initAR() {
     // Ajuste global para AR: faz a cena "brotar" para fora do QR Code e alinha o topo do modelo ao topo do QR Code.
     composedScene.rotation.set(Math.PI / 2, 0, 0);
     composedScene.position.set(0, 0, 0);
+    composedScene.scale.set(0.80, 0.80, 0.80); // Redução de 20% no tamanho total
 
     // CRIAÇÃO DO GRUPO DE SUAVIZAÇÃO (LERP)
     const smoothedGroup = new THREE.Group();
