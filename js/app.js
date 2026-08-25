@@ -36,10 +36,10 @@ async function initAR() {
       uiError: 'no',
       facingMode: 'environment', // Força uso da câmera traseira no mobile
       // CONFIGURAÇÕES DE TRACKING (Filtro OneEuro)
-      // Ajustados para deixar a experiência completamente fixa e sem lag (atraso) ao mover a câmera
+      // Ajustados para encontrar o equilíbrio perfeito: sem tremer e sem lag excessivo
       // ----------------------------------------------------
-      filterMinCF: 0.1, // Aumentado significativamente para remover a flutuação/lag
-      filterBeta: 10,   // Maior resposta a movimentos
+      filterMinCF: 0.001, // Valor baixo remove a tremedeira quando a câmera está parada
+      filterBeta: 100,    // Valor alto faz reagir rápido aos movimentos da câmera
       missTolerance: 15,
       warmupTolerance: 5
     });
