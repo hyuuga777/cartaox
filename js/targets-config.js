@@ -149,7 +149,7 @@ const targetsConfig = {
       "endTransform": {
         "position": {
           "x": 0.02198137289333474,
-          "y": 1.8784722530980935,
+          "y": 2.004741,
           "z": 0.084525
         },
         "rotation": {
@@ -249,7 +249,7 @@ const targetsConfig = {
       "endTransform": {
         "position": {
           "x": -0.8143333860887723,
-          "y": 1.6583413792365276,
+          "y": 1.762407,
           "z": 0.1
         },
         "rotation": {
@@ -299,7 +299,7 @@ const targetsConfig = {
       "endTransform": {
         "position": {
           "x": 0,
-          "y": 1.4008832566980618,
+          "y": 1.540685,
           "z": 0.1
         },
         "rotation": {
