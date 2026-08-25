@@ -36,11 +36,11 @@ async function initAR() {
       uiError: 'no',
       facingMode: 'environment', // Força uso da câmera traseira no mobile
       // CONFIGURAÇÕES DE TRACKING (Filtro OneEuro)
-      // Ajustados para encontrar o equilíbrio perfeito: sem tremer e sem lag excessivo
+      // Ajuste extremo para compensar a falta de pontos de rastreamento do QR Code
       // ----------------------------------------------------
-      filterMinCF: 0.001, // Valor baixo remove a tremedeira quando a câmera está parada
-      filterBeta: 100,    // Valor alto faz reagir rápido aos movimentos da câmera
-      missTolerance: 15,
+      filterMinCF: 0.0001, // Força a suavização máxima quando a câmera está parada
+      filterBeta: 10,      // Permite que o objeto responda a movimentos da câmera sem lag elástico
+      missTolerance: 20,   // Segura o modelo por mais tempo antes de piscar/recalcular
       warmupTolerance: 5
     });
 
