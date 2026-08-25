@@ -36,12 +36,12 @@ async function initAR() {
       uiError: 'no',
       facingMode: 'environment', // Força uso da câmera traseira no mobile
       // CONFIGURAÇÕES DE TRACKING (Filtro OneEuro)
-      // Ajuste extremo para compensar a falta de pontos de rastreamento do QR Code
+      // Restaurando o Beta original (0.001) para matar a vibração completamente.
       // ----------------------------------------------------
-      filterMinCF: 0.0001, // Força a suavização máxima quando a câmera está parada
-      filterBeta: 10,      // Permite que o objeto responda a movimentos da câmera sem lag elástico
-      missTolerance: 20,   // Segura o modelo por mais tempo antes de piscar/recalcular
-      warmupTolerance: 5
+      filterMinCF: 0.01,   // Levemente maior que o original (0.0001) para tirar o lag
+      filterBeta: 0.001,   // Retornado ao original EXATO para garantir ZERO tremedeira
+      missTolerance: 15,
+      warmupTolerance: 10
     });
 
     const { renderer, scene, camera } = mindarThree;
