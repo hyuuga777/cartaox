@@ -35,14 +35,13 @@ async function initAR() {
       uiScanning: 'no',
       uiError: 'no',
       facingMode: 'environment', // Força uso da câmera traseira no mobile
-      // ----------------------------------------------------
       // CONFIGURAÇÕES DE TRACKING (Filtro OneEuro)
-      // Ajuste para reduzir tremedeira (jitter)
+      // Ajustados para deixar a experiência completamente fixa e sem lag (atraso) ao mover a câmera
       // ----------------------------------------------------
-      filterMinCF: 0.0001, // Padrão equilibrado; deixaremos a suavização final para o nosso Lerp customizado
-      filterBeta: 0.001,
+      filterMinCF: 0.1, // Aumentado significativamente para remover a flutuação/lag
+      filterBeta: 10,   // Maior resposta a movimentos
       missTolerance: 15,
-      warmupTolerance: 10
+      warmupTolerance: 5
     });
 
     const { renderer, scene, camera } = mindarThree;
