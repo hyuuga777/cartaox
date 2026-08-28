@@ -15,56 +15,7 @@ const targetsConfig = {
       // Definições iniciais específicas para compor a cena sobre este alvo.
       // O MindAR cria o grupo do âncora com largura 1.0 (X de -0.5 a 0.5).
       composition: {
-  "novaCaixa": {
-    "id": "novaCaixa",
-    "name": "Caixa / Base",
-    "material": {
-      "color": "#208e24",
-      "metalness": 1,
-      "roughness": 1,
-      "isOccluder": false
-    },
-    "animation": {
-      "time": {
-        "start": 0,
-        "end": 10
-      },
-      "startTransform": {
-        "position": {
-          "x": 0,
-          "y": -0.0697,
-          "z": 0
-        },
-        "rotation": {
-          "x": 0,
-          "y": 0,
-          "z": 0
-        },
-        "scale": {
-          "x": 0.95,
-          "y": 0.95,
-          "z": 0.95
-        }
-      },
-      "endTransform": {
-        "position": {
-          "x": 0,
-          "y": -0.0697,
-          "z": 0
-        },
-        "rotation": {
-          "x": 0,
-          "y": 0,
-          "z": 0
-        },
-        "scale": {
-          "x": 0.95,
-          "y": 0.95,
-          "z": 0.95
-        }
-      }
-    }
-  },
+
   "flores": {
     "id": "flores",
     "name": "Flores Decorativas",
@@ -170,8 +121,8 @@ const targetsConfig = {
     "name": "Grama Nova",
     "material": {
       "color": "#ffffff",
-      "metalness": 1,
-      "roughness": 1,
+      "metalness": 0.7,
+      "roughness": 0.51,
       "isOccluder": false
     },
     "animation": {
@@ -182,7 +133,7 @@ const targetsConfig = {
       "startTransform": {
         "position": {
           "x": 0,
-          "y": 0,
+          "y": -0.29,
           "z": 0
         },
         "rotation": {
@@ -199,7 +150,7 @@ const targetsConfig = {
       "endTransform": {
         "position": {
           "x": 0,
-          "y": 0,
+          "y": -0.28617,
           "z": 0
         },
         "rotation": {
@@ -281,9 +232,9 @@ const targetsConfig = {
       },
       "startTransform": {
         "position": {
-          "x": 0,
-          "y": -0.84,
-          "z": 0.1
+          "x": -0.3,
+          "y": -1.11,
+          "z": 0
         },
         "rotation": {
           "x": 0,
@@ -291,16 +242,16 @@ const targetsConfig = {
           "z": 0
         },
         "scale": {
-          "x": 0.25,
-          "y": 0.25000000000000006,
-          "z": 0.25000000000000006
+          "x": 0.19,
+          "y": 0.19,
+          "z": 0.19
         }
       },
       "endTransform": {
         "position": {
-          "x": 0,
-          "y": 1.540685,
-          "z": 0.1
+          "x": -0.67227,
+          "y": 0.562450,
+          "z": -0.30262
         },
         "rotation": {
           "x": 0,
@@ -308,9 +259,9 @@ const targetsConfig = {
           "z": 0
         },
         "scale": {
-          "x": 0.25,
-          "y": 0.25000000000000006,
-          "z": 0.25000000000000006
+          "x": 0.39,
+          "y": 0.39,
+          "z": 0.39
         }
       }
     }

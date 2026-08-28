@@ -6,6 +6,7 @@
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import state from './state.js';
 import targetsConfig from './targets-config.js';
@@ -29,8 +30,9 @@ const animationMixers = [];
 export function loadComposedScene() {
   return new Promise((resolve, reject) => {
     const loadingManager = new THREE.LoadingManager();
-    const loader = new GLTFLoader(loadingManager);
-    loader.setMeshoptDecoder(MeshoptDecoder);
+    const gltfLoader = new GLTFLoader(loadingManager);
+    gltfLoader.setMeshoptDecoder(MeshoptDecoder);
+    const fbxLoader = new FBXLoader(loadingManager);
     const composedGroup = new THREE.Group();
     composedGroup.name = 'composedScene';
 
@@ -64,10 +66,9 @@ export function loadComposedScene() {
       const config = modelConfigs[modelId];
       const modelState = state.models[modelId];
 
-      loader.load(
-        modelState.path,
-        (gltf) => {
-          const modelScene = gltf.scene;
+      const extension = modelState.path.split('?')[0].split('.').pop().toLowerCase();
+      
+      const processLoadedModel = (modelScene, animations) => {
           modelScene.name = modelId;
 
           // Habilita sombras de forma otimizada para mobile e aplica material
@@ -132,17 +133,17 @@ export function loadComposedScene() {
           loadedModels[modelId] = modelScene;
 
           // Se o modelo possuir animações, inicializa o mixer
-          if (gltf.animations && gltf.animations.length > 0) {
+          if (animations && animations.length > 0) {
             const mixer = new THREE.AnimationMixer(modelScene);
             // Configura para reproduzir a primeira animação por padrão
-            const action = mixer.clipAction(gltf.animations[0]);
+            const action = mixer.clipAction(animations[0]);
             
             // Salva referência do mixer e do estado da animação
             animationMixers.push({
               modelId: modelId,
               mixer: mixer,
               action: action,
-              clips: gltf.animations
+              clips: animations
             });
 
             // Se o estado indicar para rodar inicialmente, reproduz
@@ -153,12 +154,31 @@ export function loadComposedScene() {
 
           // Adiciona ao grupo principal da cena composta
           composedGroup.add(modelScene);
-        },
-        undefined,
-        (err) => {
-          console.error(`Erro ao carregar o modelo ${modelId}:`, err);
-        }
-      );
+      };
+
+      if (extension === 'fbx') {
+        fbxLoader.load(
+          modelState.path,
+          (fbx) => {
+            processLoadedModel(fbx, fbx.animations);
+          },
+          undefined,
+          (err) => {
+            console.error(`Erro ao carregar o modelo FBX ${modelId}:`, err);
+          }
+        );
+      } else {
+        gltfLoader.load(
+          modelState.path,
+          (gltf) => {
+            processLoadedModel(gltf.scene, gltf.animations);
+          },
+          undefined,
+          (err) => {
+            console.error(`Erro ao carregar o modelo GLTF ${modelId}:`, err);
+          }
+        );
+      }
     });
     activeComposedGroup = composedGroup;
   });

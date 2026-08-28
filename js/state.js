@@ -22,16 +22,7 @@ const state = {
 
   // Estado individual para cada modelo da composedScene
   models: {
-    novaCaixa: {
-      id: 'novaCaixa',
-      path: 'assets/3d/novaCaixa.glb?v=2',
-      visible: true,
-      position: { x: 0, y: 0, z: 0 },
-      rotation: { x: 0, y: 0, z: 0 },
-      scale: { x: 1, y: 1, z: 1 },
-      opacity: 1.0,
-      playing: false
-    },
+
     flores: {
       id: 'flores',
       path: 'assets/3d/flores.glb?v=3',
@@ -56,7 +47,7 @@ const state = {
 
     gramanova: {
       id: 'gramanova',
-      path: 'assets/3d/gramanova.glb?v=2',
+      path: 'assets/3d/grama.glb?v=5',
       visible: true,
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
@@ -76,7 +67,7 @@ const state = {
     },
     novacolecao: {
       id: 'novacolecao',
-      path: 'assets/3d/letras-nova-colecao.glb?v=4',
+      path: 'assets/3d/novonovacolecao.glb?v=5',
       visible: true,
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },

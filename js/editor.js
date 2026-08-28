@@ -103,10 +103,9 @@ export function initEditor() {
     const availableModels = [
       'flores.glb',
       'givermy.glb',
-      'gramanova.glb',
+      'grama.glb',
       'mamo-letras.glb',
-      'novaCaixa.glb',
-      'novacolecaofrase.glb'
+      'novonovacolecao.glb'
     ];
     
     addFolder.add(addState, 'modelOptions', availableModels).name('Escolher Modelo');
