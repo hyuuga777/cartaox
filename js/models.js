@@ -52,9 +52,11 @@ export function loadComposedScene() {
       resolve(composedGroup);
     };
 
+    // IMPORTANTE: Não rejeita a Promise inteira por causa de um único arquivo.
+    // O AR continua com os modelos que carregaram. Só loga o erro.
     loadingManager.onError = (url) => {
       console.error(`Erro ao carregar o asset: ${url}`);
-      reject(new Error(`Falha ao carregar o modelo 3D em: ${url}`));
+      // Não chama reject() — deixa o onLoad resolver com o que foi carregado.
     };
 
     // Definição da cena para o alvo qrcode (índice 0)
