@@ -25,7 +25,7 @@ const state = {
 
     flores: {
       id: 'flores',
-      path: 'assets/3d/flores.glb?v=3',
+      path: 'assets/3d/flores.glb?v=4',
       visible: true,
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
@@ -47,7 +47,7 @@ const state = {
 
     gramanova: {
       id: 'gramanova',
-      path: 'assets/3d/grama.glb?v=5',
+      path: 'assets/3d/grama.glb?v=6',
       visible: true,
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
@@ -57,7 +57,7 @@ const state = {
     },
     givermy: {
       id: 'givermy',
-      path: 'assets/3d/givermy.glb?v=2',
+      path: 'assets/3d/givermy.glb?v=3',
       visible: true,
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
