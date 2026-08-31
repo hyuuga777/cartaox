@@ -264,6 +264,22 @@ const targetsConfig = {
           "z": 0.39
         }
       }
+    },
+
+    "plano": {
+      "id": "plano",
+      "name": "Plano",
+      "material": {
+        "color": "#ffffff",
+        "metalness": 0,
+        "roughness": 1,
+        "isOccluder": false
+      },
+      "initialTransform": {
+        "position": { "x": 0, "y": 0, "z": 0 },
+        "rotation": { "x": 0, "y": 0, "z": 0 },
+        "scale": { "x": 1, "y": 1, "z": 1 }
+      }
     }
   }
 }
