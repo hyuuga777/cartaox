@@ -1,8 +1,11 @@
 /**
- * compress-glb.mjs
- * Comprime texturas embutidas nos arquivos GLB usando sharp.
- * Reduz texturas 2048x2048 para 1024x1024 e re-comprime JPEGs com qualidade 75.
- * Uso: node compress-glb.mjs <arquivo.glb> <saida.glb>
+ * compress-glb.mjs v2
+ * Comprime texturas JPEG embutidas nos arquivos GLB usando sharp.
+ * Reduz texturas acima de MAX_DIM e recomprime com qualidade JPEG_QUALITY.
+ * Usa: node compress-glb.mjs <entrada.glb> <saida.glb>
+ *
+ * CORREÇÃO v2: offsets do BIN agora são acumulados corretamente sem
+ * duplo-padding, evitando RangeError no GLTFLoader.
  */
 
 import sharp from 'sharp';
@@ -17,196 +20,126 @@ if (!inputPath || !outputPath) {
   process.exit(1);
 }
 
-const MAX_DIM = 1024;  // reduz texturas maiores que isso
+const MAX_DIM      = 1024;
 const JPEG_QUALITY = 78;
 
-const glbBuffer = readFileSync(inputPath);
-const originalSize = glbBuffer.length;
+// Alinha um offset para múltiplo de 4 (exigência do spec glTF)
+function align4(n) { return Math.ceil(n / 4) * 4; }
 
-// GLB header: magic(4) + version(4) + length(4) = 12 bytes
-// Chunk 0: chunkLength(4) + chunkType(4=0x4E4F534A JSON) + data
-// Chunk 1: chunkLength(4) + chunkType(4=0x004E4942 BIN)  + data
+const glbBuffer  = readFileSync(inputPath);
+const origSize   = glbBuffer.length;
 
-const magic   = glbBuffer.readUInt32LE(0);
-const version = glbBuffer.readUInt32LE(4);
+const magic = glbBuffer.readUInt32LE(0);
+if (magic !== 0x46546C67) { console.error('Não é um GLB válido.'); process.exit(1); }
 
-if (magic !== 0x46546C67) {
-  console.error('Arquivo não é um GLB válido.');
-  process.exit(1);
-}
+// ── Parse chunk 0 (JSON) ──────────────────────────────────────────────────────
+const c0Len  = glbBuffer.readUInt32LE(12);
+const c0Type = glbBuffer.readUInt32LE(16);
+if (c0Type !== 0x4E4F534A) { console.error('Chunk 0 não é JSON.'); process.exit(1); }
+const jsonStr = glbBuffer.slice(20, 20 + c0Len).toString('utf8').replace(/\0+$/, '');
+const gltf    = JSON.parse(jsonStr);
 
-// Parse chunk 0 (JSON)
-const chunk0Length = glbBuffer.readUInt32LE(12);
-const chunk0Type   = glbBuffer.readUInt32LE(16);
-const jsonBytes    = glbBuffer.slice(20, 20 + chunk0Length);
-const gltf         = JSON.parse(jsonBytes.toString('utf8').replace(/\0+$/, ''));
+// ── Parse chunk 1 (BIN) ──────────────────────────────────────────────────────
+const c1Base = 20 + c0Len;
+if (c1Base + 8 > glbBuffer.length) { console.error('Sem chunk BIN.'); process.exit(1); }
+const c1Len  = glbBuffer.readUInt32LE(c1Base);
+const c1Type = glbBuffer.readUInt32LE(c1Base + 4);
+if (c1Type !== 0x004E4942) { console.error('Chunk 1 não é BIN.'); process.exit(1); }
+const binBuffer = glbBuffer.slice(c1Base + 8, c1Base + 8 + c1Len);
 
-// Parse chunk 1 (BIN) se existir
-const chunk1Start  = 20 + chunk0Length;
-let binBuffer = null;
-let hasBin = false;
-if (chunk1Start + 8 <= glbBuffer.length) {
-  const chunk1Length = glbBuffer.readUInt32LE(chunk1Start);
-  const chunk1Type   = glbBuffer.readUInt32LE(chunk1Start + 4);
-  if (chunk1Type === 0x004E4942) {
-    binBuffer = Buffer.from(glbBuffer.buffer, glbBuffer.byteOffset + chunk1Start + 8, chunk1Length);
-    hasBin = true;
-  }
-}
-
-if (!hasBin || !binBuffer) {
-  console.log('Nenhum chunk BIN encontrado — copiando arquivo sem modificações.');
-  writeFileSync(outputPath, glbBuffer);
-  process.exit(0);
-}
-
-// Processa cada imagem embutida via bufferView
-const images = gltf.images || [];
 const bufferViews = gltf.bufferViews || [];
+const images      = gltf.images      || [];
 
-let compressedCount = 0;
-const newBinParts = [];   // partes do novo buffer binário
-const bvRemap = {};       // mapa bufferView index -> novo offset/length
-
-// Primeiro, copia todas as bufferViews não-imagem intactas
-// Depois, processa imagens
-
-// Coletamos todos os bufferViews que são de imagem
-const imageBvIndices = new Set(
-  images
-    .filter(img => img.bufferView !== undefined)
-    .map(img => img.bufferView)
+// Índices de bufferViews que pertencem a imagens
+const imgBvSet = new Set(
+  images.filter(i => i.bufferView !== undefined).map(i => i.bufferView)
 );
 
-let offset = 0;
-const newBvData = bufferViews.map((bv, idx) => ({
-  ...bv,
-  _originalIdx: idx,
-  _newOffset: null,
-  _newLength: null
-}));
+async function run() {
+  // ── 1. Comprime cada chunk de imagem ─────────────────────────────────────
+  const newChunks   = [];   // Buffer[]  — dados novos
+  let   binOffset   = 0;   // cursor acumulador
 
-// Construir o novo buffer em ordem
-// Para manter compatibilidade, mantemos a ordem original de bufferViews
-// mas re-escrevemos os dados das imagens comprimidas
+  for (let i = 0; i < bufferViews.length; i++) {
+    const bv    = bufferViews[i];
+    const start = bv.byteOffset ?? 0;
+    const len   = bv.byteLength;
+    const src   = binBuffer.slice(start, start + len);
 
-const chunks = [];
+    let chunk;
 
-async function processAll() {
-  for (let bvIdx = 0; bvIdx < bufferViews.length; bvIdx++) {
-    const bv = bufferViews[bvIdx];
-    const start = bv.byteOffset || 0;
-    const length = bv.byteLength;
-    const srcData = binBuffer.slice(start, start + length);
-
-    if (imageBvIndices.has(bvIdx)) {
-      // Tenta comprimir como imagem
+    if (imgBvSet.has(i)) {
       try {
-        const img = sharp(srcData);
+        const img  = sharp(src);
         const meta = await img.metadata();
-        
-        let pipeline = img;
-        let wasResized = false;
-        
-        // Reduz resolução se necessário
-        if (meta.width > MAX_DIM || meta.height > MAX_DIM) {
-          pipeline = pipeline.resize(MAX_DIM, MAX_DIM, { fit: 'inside', withoutEnlargement: true });
-          wasResized = true;
+        let   pipe = img;
+        let   resized = false;
+
+        if ((meta.width ?? 0) > MAX_DIM || (meta.height ?? 0) > MAX_DIM) {
+          pipe    = pipe.resize(MAX_DIM, MAX_DIM, { fit: 'inside', withoutEnlargement: true });
+          resized = true;
         }
-        
-        // Re-comprime como JPEG
-        const compressed = await pipeline
-          .jpeg({ quality: JPEG_QUALITY, mozjpeg: false })
-          .toBuffer();
-        
-        const reduction = ((srcData.length - compressed.length) / srcData.length * 100).toFixed(1);
-        console.log(`  Textura #${bvIdx}: ${(srcData.length/1024).toFixed(0)}KB → ${(compressed.length/1024).toFixed(0)}KB (${reduction}% menor)${wasResized ? ` [${meta.width}x${meta.height}→${MAX_DIM}]` : ''}`);
-        
-        newBvData[bvIdx]._newOffset = offset;
-        newBvData[bvIdx]._newLength = compressed.length;
-        chunks.push(compressed);
-        offset += compressed.length;
-        // Alinha em 4 bytes
-        const pad = (4 - (compressed.length % 4)) % 4;
-        if (pad > 0) {
-          chunks.push(Buffer.alloc(pad, 0));
-          offset += pad;
-        }
-        compressedCount++;
-      } catch (e) {
-        // Não conseguiu comprimir — mantém original
-        console.warn(`  Textura #${bvIdx}: mantida sem compressão (${e.message})`);
-        newBvData[bvIdx]._newOffset = offset;
-        newBvData[bvIdx]._newLength = srcData.length;
-        chunks.push(srcData);
-        offset += srcData.length;
-        const pad = (4 - (srcData.length % 4)) % 4;
-        if (pad > 0) { chunks.push(Buffer.alloc(pad, 0)); offset += pad; }
+
+        chunk = await pipe.jpeg({ quality: JPEG_QUALITY }).toBuffer();
+        const pct = ((src.length - chunk.length) / src.length * 100).toFixed(1);
+        const tag = resized ? ` [${meta.width}x${meta.height}→${MAX_DIM}]` : '';
+        console.log(`  bv[${i}]: ${(src.length/1024).toFixed(0)}KB → ${(chunk.length/1024).toFixed(0)}KB (-${pct}%)${tag}`);
+      } catch {
+        console.warn(`  bv[${i}]: falhou compressão — mantido original`);
+        chunk = src;
       }
     } else {
-      // Não é imagem — copia intacto
-      newBvData[bvIdx]._newOffset = offset;
-      newBvData[bvIdx]._newLength = srcData.length;
-      chunks.push(srcData);
-      offset += srcData.length;
-      const pad = (4 - (srcData.length % 4)) % 4;
-      if (pad > 0) { chunks.push(Buffer.alloc(pad, 0)); offset += pad; }
+      chunk = src;
     }
+
+    // Atualiza o bufferView com novo offset e tamanho REAL do chunk
+    bv.byteOffset = binOffset;
+    bv.byteLength = chunk.length;
+    if (imgBvSet.has(i)) delete bv.byteStride; // não se aplica a imagens
+
+    newChunks.push(chunk);
+    binOffset += chunk.length;
+
+    // Padding de alinhamento (4 bytes) — NÃO incluso no byteLength do bv
+    const pad = align4(chunk.length) - chunk.length;
+    if (pad > 0) newChunks.push(Buffer.alloc(pad, 0));
+    binOffset += pad;   // avança o cursor incluindo o padding
   }
 
-  // Atualiza o JSON com os novos offsets e tamanhos
-  for (let i = 0; i < bufferViews.length; i++) {
-    gltf.bufferViews[i].byteOffset = newBvData[i]._newOffset;
-    gltf.bufferViews[i].byteLength = newBvData[i]._newLength;
-    // Remove byteStride para bufferViews de imagem (não aplicável)
-    if (imageBvIndices.has(i)) {
-      delete gltf.bufferViews[i].byteStride;
-    }
-  }
+  // ── 2. Monta o novo BIN ───────────────────────────────────────────────────
+  const newBin = Buffer.concat(newChunks);
 
-  // Atualiza o buffer total
-  const newBinTotal = offset;
-  if (gltf.buffers && gltf.buffers[0]) {
-    gltf.buffers[0].byteLength = newBinTotal;
-  }
+  // Atualiza tamanho do buffer no JSON
+  if (gltf.buffers?.[0]) gltf.buffers[0].byteLength = newBin.length;
 
-  // Serializa JSON (padding com espaços para alinhar em 4 bytes)
-  let jsonStr = JSON.stringify(gltf);
-  while (jsonStr.length % 4 !== 0) jsonStr += ' ';
-  const newJsonBuffer = Buffer.from(jsonStr, 'utf8');
+  // ── 3. Serializa o JSON com padding de espaços ────────────────────────────
+  let   newJsonStr = JSON.stringify(gltf);
+  const jsonPad    = align4(newJsonStr.length) - newJsonStr.length;
+  newJsonStr      += ' '.repeat(jsonPad);
+  const newJsonBuf = Buffer.from(newJsonStr, 'utf8');
 
-  // Monta o novo BIN chunk
-  const newBinBuffer = Buffer.concat(chunks);
+  // ── 4. Monta o GLB final ──────────────────────────────────────────────────
+  //  Header(12) + Chunk0Header(8) + JSON + Chunk1Header(8) + BIN
+  const totalLen = 12 + 8 + newJsonBuf.length + 8 + newBin.length;
+  const out      = Buffer.alloc(totalLen);
+  let   pos      = 0;
 
-  // Monta o GLB final
-  const totalLength = 12 + 8 + newJsonBuffer.length + 8 + newBinBuffer.length;
-  const outBuf = Buffer.alloc(totalLength);
-  let pos = 0;
+  out.writeUInt32LE(0x46546C67,       pos); pos += 4; // magic "glTF"
+  out.writeUInt32LE(2,                pos); pos += 4; // version
+  out.writeUInt32LE(totalLen,         pos); pos += 4; // total length
 
-  // GLB header
-  outBuf.writeUInt32LE(0x46546C67, pos); pos += 4; // magic
-  outBuf.writeUInt32LE(2, pos); pos += 4;           // version
-  outBuf.writeUInt32LE(totalLength, pos); pos += 4; // total length
+  out.writeUInt32LE(newJsonBuf.length, pos); pos += 4; // chunk0 length
+  out.writeUInt32LE(0x4E4F534A,        pos); pos += 4; // chunk0 type "JSON"
+  newJsonBuf.copy(out, pos);                  pos += newJsonBuf.length;
 
-  // Chunk 0 (JSON)
-  outBuf.writeUInt32LE(newJsonBuffer.length, pos); pos += 4;
-  outBuf.writeUInt32LE(0x4E4F534A, pos); pos += 4; // "JSON"
-  newJsonBuffer.copy(outBuf, pos); pos += newJsonBuffer.length;
+  out.writeUInt32LE(newBin.length,     pos); pos += 4; // chunk1 length
+  out.writeUInt32LE(0x004E4942,        pos); pos += 4; // chunk1 type "BIN\0"
+  newBin.copy(out, pos);
 
-  // Chunk 1 (BIN)
-  outBuf.writeUInt32LE(newBinBuffer.length, pos); pos += 4;
-  outBuf.writeUInt32LE(0x004E4942, pos); pos += 4; // "BIN\0"
-  newBinBuffer.copy(outBuf, pos);
+  writeFileSync(outputPath, out);
 
-  writeFileSync(outputPath, outBuf);
-
-  const newSize = outBuf.length;
-  const saved = ((originalSize - newSize) / originalSize * 100).toFixed(1);
-  console.log(`\n✅ ${basename(inputPath)}: ${(originalSize/1024/1024).toFixed(2)} MB → ${(newSize/1024/1024).toFixed(2)} MB (-${saved}%)`);
-  console.log(`   ${compressedCount} textura(s) comprimida(s)`);
+  const pct = ((origSize - out.length) / origSize * 100).toFixed(1);
+  console.log(`\n✅ ${basename(inputPath)}: ${(origSize/1024/1024).toFixed(2)} MB → ${(out.length/1024/1024).toFixed(2)} MB (-${pct}%)`);
 }
 
-processAll().catch(err => {
-  console.error('Erro:', err);
-  process.exit(1);
-});
+run().catch(e => { console.error('Erro fatal:', e); process.exit(1); });

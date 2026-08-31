@@ -25,7 +25,7 @@ const state = {
 
     flores: {
       id: 'flores',
-      path: 'assets/3d/flores.glb?v=4',
+      path: 'assets/3d/flores.glb?v=3',
       visible: true,
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0 },
