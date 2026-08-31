@@ -266,7 +266,56 @@ const targetsConfig = {
       }
     },
 
-    "plano": {
+    "grama_occluder": {
+      "id": "grama_occluder",
+      "name": "Grama Occluder",
+      "material": {
+        "color": "#222222",
+        "metalness": 1,
+        "roughness": 1,
+        "isOccluder": true
+      },
+      "animation": {
+        "time": {
+          "start": 0,
+          "end": 10
+        },
+        "startTransform": {
+          "position": {
+            "x": 0.03,
+            "y": -0.16,
+            "z": -0.12
+          },
+          "rotation": {
+            "x": 1.570796,
+            "y": 2,
+            "z": 0
+          },
+          "scale": {
+            "x": 2.2,
+            "y": 0.1,
+            "z": 2.34
+          }
+        },
+        "endTransform": {
+          "position": {
+            "x": 0.028045,
+            "y": -0.16,
+            "z": -0.12314
+          },
+          "rotation": {
+            "x": 2,
+            "y": 0,
+            "z": 0
+          },
+          "scale": {
+            "x": 2.2,
+            "y": 0.001,
+            "z": 2.34
+          }
+        }
+      }
+    },
       "id": "plano",
       "name": "Plano",
       "material": {
