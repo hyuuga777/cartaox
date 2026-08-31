@@ -106,7 +106,8 @@ export function initEditor() {
       'grama.glb',
       'mamo-letras.glb',
       'novonovacolecao.glb',
-      'plano.glb'
+      'plano.glb',
+      'novoobjeto.glb'
     ];
     
     addFolder.add(addState, 'modelOptions', availableModels).name('Escolher Modelo');

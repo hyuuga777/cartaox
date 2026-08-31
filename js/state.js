@@ -96,6 +96,17 @@ const state = {
       scale: { x: 1, y: 1, z: 1 },
       opacity: 1.0,
       playing: false
+    },
+
+    novoobjeto: {
+      id: 'novoobjeto',
+      path: 'assets/3d/novoobjeto.glb?v=1',
+      visible: true,
+      position: { x: 0, y: 1, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+      scale: { x: 1, y: 1, z: 1 },
+      opacity: 1.0,
+      playing: true
     }
   },
 
