@@ -108,6 +108,23 @@ async function initAR() {
     // Isso remove o "atraso/suavização" e prende o modelo firmemente à base.
     anchor.group.add(composedScene);
     
+    // Shadow Catcher: plano invisível que recebe as sombras projetadas pelos modelos.
+    // Fica rente ao QR Code (y = 0) e cobre toda a área do âncora MindAR (2x2 unidades).
+    const shadowPlane = new THREE.Mesh(
+      new THREE.PlaneGeometry(2.5, 2.5),
+      new THREE.ShadowMaterial({
+        opacity: 0.35,      // 0 = invisível, 1 = sombra preta sólida
+        transparent: true,
+        depthWrite: false,  // evita z-fighting com a grama
+      })
+    );
+    // O âncora MindAR fica deitado no plano XY — rotaciona o plano para ficar horizontal
+    shadowPlane.rotation.x = -Math.PI / 2;
+    shadowPlane.position.y = -0.01; // ligeiramente abaixo do nível zero para não cortar a grama
+    shadowPlane.receiveShadow = true;
+    shadowPlane.name = 'shadowCatcher';
+    anchor.group.add(shadowPlane);
+    
     console.log('Cena composta adicionada com sucesso ao âncora!');
 
     // 6. Inicializa Interações de Toque (Raycaster)
