@@ -347,32 +347,6 @@ const targetsConfig = {
           "scale": { "x": 1, "y": 1, "z": 1 }
         }
       }
-    },
-    "novoobjeto": {
-      "id": "novoobjeto",
-      "name": "Novo Objeto",
-      "material": {
-        "color": "#ffffff",
-        "metalness": 0.5,
-        "roughness": 0.5,
-        "isOccluder": false
-      },
-      "animation": {
-        "time": {
-          "start": 0,
-          "end": 10
-        },
-        "startTransform": {
-          "position": { "x": 0, "y": 1, "z": 0 },
-          "rotation": { "x": -1.570796, "y": 0, "z": 0 },
-          "scale": { "x": 1, "y": 1, "z": 1 }
-        },
-        "endTransform": {
-          "position": { "x": 0, "y": 1, "z": 0 },
-          "rotation": { "x": -1.570796, "y": 0, "z": 0 },
-          "scale": { "x": 1, "y": 1, "z": 1 }
-        }
-      }
     }
   }
 }
