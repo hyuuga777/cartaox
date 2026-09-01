@@ -284,11 +284,11 @@ const targetsConfig = {
         "startTransform": {
           "position": {
             "x": 0.03,
-            "y": -0.16,
+            "y": -0.03,
             "z": -0.12
           },
           "rotation": {
-            "x": 1.570796,
+            "x": -0.12,
             "y": 2,
             "z": 0
           },
@@ -300,9 +300,9 @@ const targetsConfig = {
         },
         "endTransform": {
           "position": {
-            "x": 0.028045,
-            "y": -0.16,
-            "z": -0.12314
+            "x": 0.03,
+            "y": -0.02639,
+            "z": -0.12
           },
           "rotation": {
             "x": 2,
