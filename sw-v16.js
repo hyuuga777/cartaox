@@ -4,7 +4,7 @@
  * buscados do servidor antes de recorrer ao cache local.
  */
 
-const CACHE_NAME = 'mamo-ar-cache-v28';
+const CACHE_NAME = 'mamo-ar-cache-v29';
 
 const ASSETS_TO_CACHE = [
   './',
