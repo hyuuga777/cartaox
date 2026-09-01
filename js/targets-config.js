@@ -264,9 +264,10 @@ const targetsConfig = {
           "z": 0.39
         }
       }
-    },
+    }
+  },
 
-    "grama_occluder": {
+  "grama_occluder": {
       "id": "grama_occluder",
       "name": "Grama Occluder",
       "material": {
@@ -375,7 +376,6 @@ const targetsConfig = {
     }
   }
 }
-    }
   ]
 };
 
