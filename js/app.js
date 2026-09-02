@@ -36,12 +36,13 @@ async function initAR() {
       uiError: 'no',
       facingMode: 'environment', // Força uso da câmera traseira no mobile
       // CONFIGURAÇÕES DE TRACKING (Filtro OneEuro)
-      // Restaurando o Beta original (0.001) para matar a vibração completamente.
+      // Valores compatíveis com os defaults documentados no MindAR 1.2.x:
+      // cutoff baixo reduz jitter; beta alto preserva resposta durante movimento.
       // ----------------------------------------------------
-      filterMinCF: 0.01,   // Levemente maior que o original (0.0001) para tirar o lag
-      filterBeta: 0.001,   // Retornado ao original EXATO para garantir ZERO tremedeira
-      missTolerance: 15,
-      warmupTolerance: 10
+      filterMinCF: 0.001,
+      filterBeta: 1000,
+      missTolerance: 5,
+      warmupTolerance: 5
     });
 
     const { renderer, scene, camera } = mindarThree;
@@ -150,8 +151,9 @@ async function initAR() {
       // Sincroniza posições/rotação/escala do estado declarativo para o Three.js
       models.updateSceneFromState(composedScene);
 
-      // Direciona as sombras dinâmicas de acordo com o âncora ativo
-      lighting.updateLighting(anchor.group);
+      // A iluminação permanece em coordenadas de mundo estáveis. Não vincular
+      // a luz ao anchor, pois o ruído residual do tracking também faria as
+      // sombras oscilarem e reforçaria visualmente o tremor dos modelos.
       
       renderer.render(scene, camera);
     });
@@ -499,7 +501,7 @@ async function initDesktopMode() {
       }
       
       // No modo desktop, a luz olha pro centro (composedScene)
-      lighting.updateLighting(composedScene);
+      // A iluminação do modo desktop também usa uma direção fixa.
       
       renderer.render(scene, camera);
     });
