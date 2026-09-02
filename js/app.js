@@ -38,8 +38,9 @@ async function initAR() {
       // CONFIGURAÇÕES DE TRACKING (Filtro OneEuro)
       // Restaurando o Beta original (0.001) para matar a vibração completamente.
       // ----------------------------------------------------
-      filterMinCF: 0.01,   // Levemente maior que o original (0.0001) para tirar o lag
-      filterBeta: 0.001,   // Retornado ao original EXATO para garantir ZERO tremedeira
+      // Configuração reportada como estável para Three.js/MindAR em casos de jitter.
+      filterMinCF: 0.0001,
+      filterBeta: 0.001,
       missTolerance: 15,
       warmupTolerance: 10
     });
