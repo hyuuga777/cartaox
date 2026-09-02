@@ -220,12 +220,12 @@ export function updateTweens(elapsedTime) {
     // Esconde o objeto apenas ANTES do início da animação
     if (elapsedTime < anim.time.start) {
       if (modelState.visible) {
-        state.updateModel(modelId, { visible: false }, false);
+        state.updateModel(modelId, { visible: false });
       }
       return; // Se não está visível, não precisa calcular interpolação
     } else {
       if (!modelState.visible) {
-        state.updateModel(modelId, { visible: true }, false);
+        state.updateModel(modelId, { visible: true });
       }
     }
 
@@ -252,7 +252,7 @@ export function updateTweens(elapsedTime) {
     state.updateModel(modelId, {
       position: currentPos,
       scale: currentScale
-    }, false);
+    });
   });
 }
 

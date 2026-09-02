@@ -10,7 +10,6 @@ let ambientLight = null;
 let mainLight = null;
 let secondaryLight = null;
 let currentProfile = 'realista';
-let stableLightTarget = null;
 
 /**
  * Cria as luzes iniciais na cena.
@@ -42,14 +41,6 @@ export function initLighting(scene) {
   mainLight.shadow.normalBias = 0.002;
   mainLight.shadow.radius = 4; // PCFSoftShadowMap blur
 
-  // O alvo da luz precisa permanecer estável no mundo. Vinculá-lo ao
-  // anchor faria a direção das sombras acompanhar cada pequena variação
-  // do solver de pose do MindAR.
-  stableLightTarget = new THREE.Object3D();
-  stableLightTarget.position.set(0, 0, 0);
-  stableLightTarget.name = 'stableLightTarget';
-  scene.add(stableLightTarget);
-  mainLight.target = stableLightTarget;
   scene.add(mainLight);
 
   // 3. Luz Secundária / Preenchimento
@@ -104,11 +95,11 @@ export function applyProfile(profileName) {
  * Atualiza posições ou direções dinâmicas das luzes se necessário.
  * @param {THREE.Group} targetGroup Grupo do âncora ativo
  */
-export function updateLighting() {
-  // Intencionalmente não acompanha o anchor. A pose do target é atualizada
-  // em todos os frames e pequenas variações não devem alterar a iluminação.
-  if (mainLight && stableLightTarget && mainLight.target !== stableLightTarget) {
-    mainLight.target = stableLightTarget;
+export function updateLighting(targetGroup) {
+  // Podemos manter a luz apontando para o centro do grupo do target para sombras estáveis
+  if (targetGroup && mainLight) {
+    // Faz o target da luz direcional seguir a posição do âncora AR
+    mainLight.target = targetGroup;
   }
 }
 /**

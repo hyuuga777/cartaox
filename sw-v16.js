@@ -4,7 +4,7 @@
  * buscados do servidor antes de recorrer ao cache local.
  */
 
-const CACHE_NAME = 'mamo-ar-cache-v34';
+const CACHE_NAME = 'mamo-ar-cache-v33';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -19,10 +19,10 @@ const ASSETS_TO_CACHE = [
   './js/interactions.js',
   './js/editor.js',
   './js/app.js',
-  './js/app.js?v=9',
+  './js/app.js?v=8',
   './assets/images/logo_mamo.png',
   './assets/images/qrcode.png',
-  './targets_v5.mind',
+  './targets_v4.mind',
 ];
 
 self.addEventListener('install', event => {

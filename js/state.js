@@ -116,7 +116,7 @@ const state = {
    * @param {string} modelId 
    * @param {Object} properties 
    */
-  updateModel(modelId, properties, notify = true) {
+  updateModel(modelId, properties) {
     if (this.models[modelId]) {
       this.models[modelId] = {
         ...this.models[modelId],
@@ -126,7 +126,7 @@ const state = {
         rotation: properties.rotation ? { ...this.models[modelId].rotation, ...properties.rotation } : this.models[modelId].rotation,
         scale: properties.scale ? { ...this.models[modelId].scale, ...properties.scale } : this.models[modelId].scale
       };
-      if (notify) this.notify();
+      this.notify();
     }
   },
 
