@@ -22,7 +22,7 @@ const ASSETS_TO_CACHE = [
   './js/app.js?v=8',
   './assets/images/logo_mamo.png',
   './assets/images/qrcode.png',
-  './targets_v4.mind',
+  './targets (8).mind',
 ];
 
 self.addEventListener('install', event => {
